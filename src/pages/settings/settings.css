@@ -1,0 +1,76 @@
+.settings-tabs {
+  display: flex;
+  gap: 20px;
+  border-bottom: 1px solid #ddd;
+}
+
+.settings-tabs a {
+  padding: 10px 15px;
+  text-decoration: none;
+  color: #555;
+  font-size: 14px;
+}
+
+.settings-tabs a.active {
+  border-bottom: 3px solid var(--main-color);
+  color: var(--main-color);
+  font-weight: 600;
+}
+
+.settings-content {
+  padding: 20px 0;
+}
+
+
+.bank-details-card {
+
+  background: #fff;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+
+}
+
+/* LEFT QR */
+.bank-qr {
+  width: 100%;
+  height: 180px;
+  text-align: center;
+  border-right: 1px solid #eee;
+  padding-right: 20px;
+}
+
+.bank-qr img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.bank-qr p {
+  margin-top: 10px;
+  font-weight: 600;
+  color: #555;
+}
+
+/* RIGHT INFO */
+.bank-info {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px 40px;
+}
+
+.info-row span {
+  display: block;
+  font-size: 13px;
+  color: var(--main-color);
+  margin-bottom: 4px;
+}
+
+.info-row strong {
+  font-size: 15px;
+  color: #222;
+  font-weight: 400;
+}
+
+

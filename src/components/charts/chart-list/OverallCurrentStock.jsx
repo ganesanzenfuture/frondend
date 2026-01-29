@@ -1,0 +1,60 @@
+import { useEffect, useState } from "react";
+import Chart from "react-apexcharts";
+import { getProducts } from "../../../services/product.service";
+
+const OverallCurrentStock = () => {
+  const [series, setSeries] = useState([]);
+  const [labels, setLabels] = useState([]);
+
+  useEffect(() => {
+    const loadOverallStock = async () => {
+      const products = await getProducts();
+
+      const stockData = (products || [])
+        .map((p) => ({
+          label: `${p.product_name || p.name} (${p.product_category || "Uncategorized"})`,
+          qty: Number(p.stock ?? p.current_stock ?? p.available_qty ?? 0),
+        }))
+        .filter((p) => p.qty > 0);
+
+      setLabels(stockData.map((p) => p.label));
+      setSeries(stockData.map((p) => p.qty));
+    };
+
+    loadOverallStock();
+  }, []);
+
+  const hasData = labels.length > 0;
+
+  const options = {
+    chart: { type: "pie" },
+    labels: hasData ? labels : ["No Data"],
+    colors: hasData
+      ? ["#68ceed", "#ffd864", "#56ffb1", "#ff7a7a", "#b084ff"]
+      : ["#e0e0e0"],
+    title: {
+      text: "Overall Current Stock",
+      align: "center",
+    },
+    legend: {
+      position: "bottom",
+      formatter: (seriesName) => seriesName, // shows name + category
+    },
+    tooltip: {
+      y: {
+        formatter: (val) => `${val} qty`,
+      },
+    },
+  };
+
+  return (
+    <Chart
+      options={options}
+      series={hasData ? series : [1]}
+      type="pie"
+      height={320}
+    />
+  );
+};
+
+export default OverallCurrentStock;
