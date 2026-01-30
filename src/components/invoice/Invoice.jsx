@@ -4,12 +4,16 @@ import logo2 from "../../assets/images/logo-2.png";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getCustomerBillingById } from "../../services/customerBilling.service";
+import { getCompanyDetails } from "../../services/companyDetails.service";
 
 export const Invoice = () => {
   const { id } = useParams();
 
   const [billing, setBilling] = useState(null);
   const [products, setProducts] = useState([]);
+  const [company, setCompany] = useState(null);
+   
+
 
   useEffect(() => {
    getCustomerBillingById(id).then((res) => {
@@ -22,8 +26,16 @@ export const Invoice = () => {
     setTimeout(() => window.print(), 500);
   }
 }, [billing]);
+  useEffect(() => {
+  getCompanyDetails().then((res) => {
+    setCompany(res);
+  });
+}, []);
 
-  if (!billing) return <p>Loading invoice...</p>;
+  if (!billing || !company) {
+  return <p>Loading invoice...</p>;
+}
+
 
   return (
     <div className="invoice-box">
@@ -40,16 +52,18 @@ export const Invoice = () => {
 
             <div className="center">
               <div className="center-top">
-                <h1>
-                  DHEERAN TRADERS <sup>TM</sup>
-                </h1>
+               <h1>
+                {company?.company_name} <sup>TM</sup>
+              </h1>
               </div>
-
               <div className="center-bottom">
-                <p>
-                  Registered: 5/218/1, Pennagaram Main Road, Sogathur, <br />
-                  Dharmapuri, Tamil Nadu, 636809
-                </p>
+              <p>
+                {company?.company_address}
+                <br />
+                {company?.district}, {company?.state}, {company?.pincode}
+              </p>
+
+
               </div>
             </div>
 
@@ -59,20 +73,16 @@ export const Invoice = () => {
           </div>
 
           <div className="quote-box">
-            <p>"மனிதனை மனிதனாக மதிப்போம்"! "வேற்றுமையில் ஒற்றுமை காண்போம்"!!</p>
-            <p className="big">செய்வது துணிந்து செய்</p>
+          <p>"{company?.company_quotes}"</p>
           </div>
+
         </div>
 
         <div className="info-section">
           <div className="contact-info">
             <div className="padd">
-              <p>
-                <strong>Email:</strong> dheerantradersthennarasu@gmail.com
-              </p>
-              <p>
-                <strong>Website:</strong> www.dheerantrades.com
-              </p>
+            <p><strong>Email:</strong> {company?.email}</p>
+            <p><strong>Website:</strong> {company?.website}</p>
              <p>
                 <strong>GSTIN:</strong> {billing.gst_number || "-"}
               </p>
@@ -97,7 +107,7 @@ export const Invoice = () => {
                     })}
                   </div>
 
-              <p>TN29CD5389</p>
+              {/* <p>TN29CD5389</p> */}
             </div>
           </div>
         </div>
@@ -170,36 +180,87 @@ export const Invoice = () => {
                   </tr>
 
 
-            <tr>
-              <td colSpan="4">
-                <h5 style={{ fontSize: "20px", margin: 0 }}>Disclaimer</h5>
-                <p style={{ fontWeight: 400, margin: "3px 0" }}>
-                  Goods sold under this invoice are unregistered brand names & supply under GST chargeable to 0% tax.
-                </p>
-              </td>
-              <td>
-                  GST ({billing.tax_gst_percent}%)
-                </td>
-                <td>{billing.tax_gst_amount}</td>
+<tr>
+  {/* LEFT — DISCLAIMER */}
+  <td colSpan="4">
+    <h5 style={{ fontSize: "20px", margin: 0 }}>Disclaimer</h5>
+    <p style={{ fontWeight: 400, margin: "3px 0" }}>
+      {company?.disclaimer}
+    </p>
+  </td>
 
-            </tr>
+  {/* RIGHT — TAX TABLE */}
+  <td colSpan="2" style={{ padding: 0 }}>
+    <table style={{ width: "100%", borderCollapse: "collapse" }}>
+      <tbody>
+        <tr>
+          <td style={{ border: "1px solid #000", padding: "4px" }}>
+            GST ({billing.tax_gst_percent}%)
+          </td>
+          <td
+            style={{
+              border: "1px solid #000",
+              padding: "4px",
+              textAlign: "center",
+            }}
+          >
+            ₹{billing.tax_gst_amount}
+          </td>
+        </tr>
+
+        <tr>
+          <td style={{ border: "1px solid #000", padding: "4px" }}>
+            CGST ({billing.tax_cgst_percent}%)
+          </td>
+          <td
+            style={{
+              border: "1px solid #000",
+              padding: "4px",
+              textAlign: "center",
+            }}
+          >
+            ₹{billing.tax_cgst_amount}
+          </td>
+        </tr>
+
+        <tr>
+          <td style={{ border: "1px solid #000", padding: "4px" , }}>
+            SGST ({billing.tax_sgst_percent}%)
+          </td>
+          <td
+            style={{
+              border: "1px solid #000",
+              padding: "4px",
+              textAlign: "center",
+            }}
+          >
+            ₹{billing.tax_sgst_amount}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </td>
+</tr>
+
 
             <tr>
-              <td
+             <td
                 colSpan="4"
                 style={{
                   textAlign: "right",
                   color: "#a52a2a",
-                }}>
-                #48 மணி நேரத்திற்கு பிறகு திரும்பபெற இயலாது*
+                }}
+              >
+               {company?.instruction}
               </td>
+
               <td style={{ fontSize: "16px" }}>Total</td>
               <td className="grand-total">
                ₹{parseFloat(billing.grand_total || 0).toFixed(2)}
               </td>
 
             </tr>
-                 <tr>
+                 {/* <tr>
                     <td colSpan="4"></td>
                     <td>Advance Paid</td>
                     <td>₹{billing.advance_paid}</td>
@@ -221,7 +282,7 @@ export const Invoice = () => {
                     <td colSpan="4"></td>
                     <td>Balance Due</td>
                     <td>₹{billing.balance_due}</td>
-                  </tr>
+                  </tr> */}
 
             <tr>
               <td colSpan="4">
@@ -263,15 +324,15 @@ export const Invoice = () => {
               <td colSpan="6">
                 <div className="disclaimer">
                   <span>For Reg :</span>
-                  Mathikonpalayam, Tirupattur Road, Dharmapuri, Tamil Nadu-636 701
-                  <br />
-                  If you have any questions about this invoice,
-                  <br />
-                  Please contact Phone No. +91 9865065260 & Email ID: dheerantradersthennarasu@gmail.com
-                  <br />
+                      {company?.company_address}, {company?.district}, {company?.state} - {company?.pincode}
+                      <br />
+                      If you have any questions about this invoice,
+                      <br />
+                      Please contact Phone No. {company?.phone} & Email ID: {company?.email}
+                      <br />
                   <strong>Thank You For Your Business!</strong>
                   <br />
-                  "the system generated signature not required"
+                  "the system generated signature not required" 
                 </div>
               </td>
             </tr>

@@ -55,8 +55,11 @@ export const getBrandWiseReport = async () => {
 };
 /* GET ONLY PENDING */
 export const getPendingBills = async () => {
-  const res = await api.get("/customer-billing");
-  return res.data.filter(
-    bill => Number(bill.balance_due) > 0
-  );
+  const res = await api.get("/customer-billing/pending");
+  return res.data;
+};
+  
+export const getProductWiseReport = async () => {
+  const res = await api.get("/customer-billing/products");
+  return Array.isArray(res.data) ? res.data : [];
 };

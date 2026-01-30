@@ -213,7 +213,76 @@ body {
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
   z-index: 1000;
 }
-  
+  .modal-backdrop.show {
+  background-color: rgba(0, 0, 0, 0.55);
+}
+
+.modal-dialog {
+  max-width: 800px;
+  margin: auto;
+}
+
+.modal-content {
+  border-radius: 10px;
+}
+/* ===== ERP MODAL FIX ===== */
+
+.erp-modal-overlay {
+  background: rgba(0, 0, 0, 0.55);
+  position: fixed;
+  inset: 0;
+  z-index: 1050;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* THIS PREVENTS FULL-WIDTH BUG */
+.erp-modal-container {
+  outline: none;
+  width: 100%;
+  max-width: 900px;   /* 👈 SAME AS EMPLOYEE MODAL */
+}
+
+/* ACTUAL MODAL CARD */
+.erp-modal-card {
+  background: #fff;
+  border-radius: 8px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+/* HEADER */
+.erp-modal-header {
+  padding: 14px 18px;
+  border-bottom: 1px solid #e5e5e5;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* BODY SCROLL ONLY */
+.erp-modal-body {
+  padding: 18px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+/* Remove number input arrows - Chrome, Edge, Safari */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Remove number input arrows - Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+
 @keyframes fadeSlide {
   from {
     opacity: 0;

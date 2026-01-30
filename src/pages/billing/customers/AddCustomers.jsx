@@ -100,7 +100,7 @@ export const AddCustomers = ({ closeModal, editData, refresh }) => {
   }
 
   // ✅ move these OUTSIDE try/catch
-  refresh();
+  refresh(res.data);
   closeModal();
 };
 

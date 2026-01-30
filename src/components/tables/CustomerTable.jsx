@@ -6,7 +6,7 @@ import {
 import { AddCustomers } from "../../pages/billing/customers/AddCustomers";
 import { toast } from "react-toastify";
 
-export const CustomerTable = ({ search }) => {
+export const CustomerTable = ({ search, showActions = true }) => {
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -68,31 +68,49 @@ export const CustomerTable = ({ search }) => {
     setShowModal(false);
     setEditData(null);
   };
+  const handleRefresh = (newCustomer) => {
+  if (newCustomer) {
+    // ⚡ INSTANT UI UPDATE
+    setCustomers(prev => [newCustomer, ...prev]);
+  } else {
+    fetchCustomers();
+  }
+};
 
-  if (loading) return <p>Loading customers...</p>;
+  {loading && (
+  <div className="text-center my-2">
+    <span className="spinner-border spinner-border-sm me-2" />
+    Refreshing customers...
+  </div>
+)}
+
 
   return (
     <>
       <div className="common-table-wrapper mt-4">
         <table className="common-table table-striped">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Phone</th>
-            <th>Address</th>
-            <th>Total Billing</th>
-            <th>Pending</th>
-            <th className="text-end">Actions</th>
-          </tr>
-        </thead>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Address</th>
+              <th>Total Billing</th>
+              <th>Pending</th>
 
+              {/* ✅ ACTION HEADER (CONDITIONAL) */}
+              {showActions && <th className="text-end">Actions</th>}
+            </tr>
+          </thead>
 
-         <tbody>
+          <tbody>
             {filteredCustomers.length === 0 ? (
               <tr>
-                <td colSpan="8" className="text-center">
+                <td
+                  colSpan={showActions ? 8 : 7}
+                  className="text-center"
+                >
                   No customers found
                 </td>
               </tr>
@@ -101,7 +119,9 @@ export const CustomerTable = ({ search }) => {
                 <tr key={c.id}>
                   <td>{c.id}</td>
 
-                  <td>{c.first_name} {c.last_name}</td>
+                  <td>
+                    {c.first_name} {c.last_name}
+                  </td>
 
                   <td>{c.email || "—"}</td>
 
@@ -109,12 +129,12 @@ export const CustomerTable = ({ search }) => {
 
                   <td>{c.address || "—"}</td>
 
-                  {/* ✅ TOTAL BILLING (ALL BILLS SUM) */}
+                  {/* ✅ TOTAL BILLING */}
                   <td>
                     ₹ {Number(c.total || 0).toLocaleString()}
                   </td>
 
-                  {/* ✅ TOTAL PENDING (ALL BILLS PENDING) */}
+                  {/* ✅ TOTAL PENDING */}
                   <td
                     className={
                       Number(c.pending_amount) > 0
@@ -125,27 +145,28 @@ export const CustomerTable = ({ search }) => {
                     ₹ {Number(c.pending_amount || 0).toLocaleString()}
                   </td>
 
-                  <td className="text-end">
-                    <button
-                      className="btn btn-sm btn-warning me-2"
-                      onClick={() => handleEdit(c)}
-                    >
-                      <i className="bi bi-pencil" />
-                    </button>
+                  {/* ✅ ACTION BUTTONS (CONDITIONAL) */}
+                  {showActions && (
+                    <td className="text-end">
+                      <button
+                        className="btn btn-sm btn-warning me-2"
+                        onClick={() => handleEdit(c)}
+                      >
+                        <i className="bi bi-pencil" />
+                      </button>
 
-                    <button
-                      className="btn btn-sm btn-danger"
-                      onClick={() => handleDelete(c.id)}
-                    >
-                      <i className="bi bi-trash" />
-                    </button>
-                  </td>
+                      <button
+                        className="btn btn-sm btn-danger"
+                        onClick={() => handleDelete(c.id)}
+                      >
+                        <i className="bi bi-trash" />
+                      </button>
+                    </td>
+                  )}
                 </tr>
               ))
             )}
           </tbody>
-
-
         </table>
       </div>
 
@@ -153,7 +174,6 @@ export const CustomerTable = ({ search }) => {
       {showModal && (
         <div className="custom-modal-overlay">
           <div className="custom-modal">
-
             {/* MODAL HEADER */}
             <div className="modal-header customer-modal-header">
               <h5 className="modal-title">
@@ -175,10 +195,9 @@ export const CustomerTable = ({ search }) => {
               <AddCustomers
                 editData={editData}
                 closeModal={handleCloseModal}
-                refresh={fetchCustomers}
+                refresh={handleRefresh}
               />
             </div>
-
           </div>
         </div>
       )}

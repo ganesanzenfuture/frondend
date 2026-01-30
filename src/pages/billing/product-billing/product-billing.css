@@ -346,3 +346,14 @@
   font-size: 13px;
   padding: 4px 8px;
 }
+/* Remove number input arrows - Chrome, Edge, Safari */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Remove number input arrows - Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
+}

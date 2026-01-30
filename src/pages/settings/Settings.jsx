@@ -9,11 +9,17 @@ export const Settings = () => {
       {/* Tabs */}
       <div className="settings-tabs mt-4">
         <NavLink to="edit-profile" className={({ isActive }) => (isActive ? "active" : "")}>
-          Edit Profile
+          Profile
         </NavLink>
 
         <NavLink to="bank-details" className={({ isActive }) => (isActive ? "active" : "")}>
           Bank Details
+        </NavLink>
+        <NavLink to="create-profile" className={({ isActive }) => (isActive ? "active" : "")}>
+          create profile
+        </NavLink>
+        <NavLink to="company-details" className={({ isActive }) => (isActive ? "active" : "")}>
+          company details
         </NavLink>
       </div>
 

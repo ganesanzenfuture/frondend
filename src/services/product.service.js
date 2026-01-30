@@ -55,5 +55,10 @@ export const deleteProduct = async (id) => {
   }
   
 };
-export const updateProductStock = (id, stock) =>
-  api.patch(`/products/update-stock/${id}`, { stock });
+// export const updateProductStock = (id, stock) =>
+//   api.patch(`/products/update-stock/${id}`, { stock });
+
+
+export const updateProductStock = (id, data) => {
+  return api.patch(`/products/update-stock/${id}`, data);
+};

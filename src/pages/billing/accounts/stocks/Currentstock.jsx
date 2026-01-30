@@ -5,8 +5,6 @@ import {
 } from "../../../../services/product.service";
 import { toast } from "react-toastify";
 
-const ADMIN_PASSWORD = "1234";
-
 const Currentstock = ({
   refreshKey = 0,
   search = "",
@@ -19,9 +17,7 @@ const Currentstock = ({
   const [stockInputs, setStockInputs] = useState({});
   const [password, setPassword] = useState("");
 
-  // controls which row + action is active
-  const [activeAction, setActiveAction] = useState(null); 
-  // unlocked row id after password success
+  const [activeAction, setActiveAction] = useState(null); // {id, type}
   const [unlockedRowId, setUnlockedRowId] = useState(null);
 
   /* ================= LOAD PRODUCTS ================= */
@@ -40,7 +36,6 @@ const Currentstock = ({
 
       setProducts(normalized);
 
-      // preload stock values
       const map = {};
       normalized.forEach((p) => {
         map[p.id] = p.stock;
@@ -57,41 +52,31 @@ const Currentstock = ({
     fetchProducts();
   }, [refreshKey]);
 
-  /* ================= PASSWORD UNLOCK ================= */
-  const unlockRow = () => {
-    if (!password) {
-      toast.error("Enter admin password");
-      return;
-    }
-
-    if (password !== ADMIN_PASSWORD) {
-      toast.error("Wrong password");
-      return;
-    }
-
-    setUnlockedRowId(activeAction.id);
-    toast.success("Unlocked");
-  };
-
-  /* ================= SAVE / CLEAR STOCK ================= */
+  /* ================= CONFIRM ACTION ================= */
   const confirmAction = async (productId, type) => {
     try {
-      if (type === "edit") {
-        await updateProductStock(
-          productId,
-          Number(stockInputs[productId])
-        );
-        toast.success("Stock updated");
+      if (!password) {
+        toast.error("Enter admin password");
+        return;
       }
 
-      if (type === "delete") {
-        await updateProductStock(productId, 0);
-        toast.success("Stock cleared");
+      const newStock =
+        type === "delete" ? 0 : Number(stockInputs[productId]);
+
+      if (isNaN(newStock)) {
+        toast.error("Stock must be a number");
+        return;
       }
 
+      await updateProductStock(productId, {
+        stock: newStock,
+        adminPassword: password,
+      });
+
+      toast.success("Stock updated");
       fetchProducts();
-    } catch {
-      toast.error("Operation failed");
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Operation failed");
     } finally {
       setPassword("");
       setActiveAction(null);
@@ -117,7 +102,6 @@ const Currentstock = ({
     return <p className="text-center">Loading products...</p>;
   }
 
-  /* ================= UI ================= */
   return (
     <div className="common-table-wrapper">
       <table className="common-table table-striped align-middle">
@@ -151,7 +135,6 @@ const Currentstock = ({
                   <span className="badge bg-secondary">{p.quantity}</span>
                 </td>
 
-                {/* 🔒 STOCK FIELD */}
                 <td className="text-center">
                   <input
                     type="number"
@@ -170,9 +153,7 @@ const Currentstock = ({
 
                 <td>{p.price.toFixed(2)}</td>
 
-                {/* 🔐 ACTIONS */}
                 <td className="text-center" style={{ minWidth: "200px" }}>
-                  {/* ACTION ICONS */}
                   <div className="d-flex justify-content-center gap-2 mb-1">
                     <button
                       className="btn btn-sm btn-warning"
@@ -180,7 +161,7 @@ const Currentstock = ({
                         setActiveAction({ id: p.id, type: "edit" })
                       }
                     >
-                      <i className="bi bi-pencil"></i>
+                      ✏️
                     </button>
 
                     <button
@@ -189,66 +170,51 @@ const Currentstock = ({
                         setActiveAction({ id: p.id, type: "delete" })
                       }
                     >
-                      <i className="bi bi-trash"></i>
+                      🗑
                     </button>
                   </div>
 
-                  {/* 🔑 PASSWORD BOX */}
                   {activeAction?.id === p.id && unlockedRowId !== p.id && (
-                            <div
-                              className="mx-auto mt-2 p-2 border rounded shadow-sm bg-white"
-                              style={{
-                                width: "160px",
-                                textAlign: "center",
-                              }}
-                            >
-                              <div className="small text-muted mb-1">
-                                Admin Password
-                              </div>
+                    <div
+                      className="mx-auto mt-2 p-2 border rounded shadow-sm bg-white"
+                      style={{ width: "160px", textAlign: "center" }}
+                    >
+                      <div className="small text-muted mb-1">
+                        Admin Password
+                      </div>
 
-                              <input
-                                      type="password"
-                                      className="form-control form-control-sm mb-2"
-                                      placeholder=""
-                                      value={password}
-                                      onChange={(e) => setPassword(e.target.value)}
+                      <input
+                        type="password"
+                        className="form-control form-control-sm mb-2"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        autoComplete="new-password"
+                      />
 
-                                      autoComplete="new-password"
-                                      name="admin-auth"
-                                      inputMode="text"
-                                      autoCorrect="off"
-                                      autoCapitalize="off"
-                                      spellCheck={false}
-                                    />
+                      <button
+                        className="btn btn-sm btn-dark w-100"
+                        onClick={() => setUnlockedRowId(p.id)}
+                      >
+                        🔓 Unlock
+                      </button>
+                    </div>
+                  )}
 
-
-                              <button
-                                className="btn btn-sm btn-dark w-100"
-                                onClick={unlockRow}
-                              >
-                                🔓 Unlock
-                              </button>
-                            </div>
-                          )}
-
-
-                  {/* ✅ CONFIRM BUTTON */}
                   {unlockedRowId === p.id && (
-                        <div
-                          className="mx-auto mt-2 p-2 border rounded bg-light text-center"
-                          style={{ width: "160px" }}
-                        >
-                          <button
-                            className="btn btn-sm btn-success w-100"
-                            onClick={() =>
-                              confirmAction(p.id, activeAction.type)
-                            }
-                          >
-                            ✅ Confirm
-                          </button>
-                        </div>
-                      )}
-
+                    <div
+                      className="mx-auto mt-2 p-2 border rounded bg-light text-center"
+                      style={{ width: "160px" }}
+                    >
+                      <button
+                        className="btn btn-sm btn-success w-100"
+                        onClick={() =>
+                          confirmAction(p.id, activeAction.type)
+                        }
+                      >
+                        ✅ Confirm
+                      </button>
+                    </div>
+                  )}
                 </td>
               </tr>
             ))

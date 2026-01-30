@@ -10,7 +10,7 @@ export const Dashboard = () => {
 
       <StackCard />
       <Chart />
-      <CustomerTable />
+      <CustomerTable showActions={false} />
     </>
   );
 };

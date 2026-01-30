@@ -180,13 +180,13 @@ const [password, setPassword] = useState("");
                 <i className="fi fi-tr-file-excel"></i> Export Excel
               </button>
 
-              <button className="pdf-btn">
+              {/* <button className="pdf-btn">
                 <i className="fi fi-tr-file-pdf"></i> Pdf
               </button>
 
               <button className="print-btn" onClick={() => window.print()}>
                 <i className="fi fi-tr-print"></i> Print
-              </button>
+              </button> */}
             </div>
           </div>
 

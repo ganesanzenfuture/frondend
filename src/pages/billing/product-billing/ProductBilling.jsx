@@ -7,6 +7,9 @@ import { getEmployees, createEmployee } from "../../../services/employee.service
 import { getProducts } from "../../../services/product.service";
 import { createCustomerBilling } from "../../../services/customerBilling.service";
 import { getAllBankDetails } from "../../../services/bankDetalis.service";
+import api from "../../../services/api";
+import { toast } from "react-toastify"; // ✅ ADD THIS
+import { getCompanyDetails } from "../../../services/companyDetails.service";
 
 export const ProductBilling = () => {
   const { id } = useParams();   // 👈 this defines id
@@ -34,7 +37,6 @@ export const ProductBilling = () => {
 
   /* ================= BILL ================= */
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [quantity, setQuantity] = useState("");
   const [billProducts, setBillProducts] = useState([]);
   const [sellQty, setSellQty] = useState("");
 
@@ -47,6 +49,7 @@ export const ProductBilling = () => {
   const [selectedBankId, setSelectedBankId] = useState(null);
   const navigate = useNavigate();
   const [banks, setBanks] = useState([]);
+  const [company, setCompany] = useState(null);
 
 useEffect(() => {
   if (!id) return; // CREATE mode
@@ -75,16 +78,18 @@ useEffect(() => {
       setSelectedBankId(data.bank_id);
 
       // 🟦 PRODUCTS (MOST IMPORTANT PART)
-      const mappedProducts = data.products.map((p) => ({
-        product_id: p.product_id,
-        product_name: p.product_name,
-        brand: p.product_brand,
-        category: p.product_category,
-        pack_qty: p.pack_qty || "",     // if exists
-        sell_qty: p.quantity,            // 👈 customer qty
-        rate: p.rate,
-        stock: 9999,                     // optional (skip stock check in edit)
-      }));
+ const mappedProducts = data.products.map((p) => ({
+  product_id: p.product_id,
+  product_name: p.product_name,
+  brand: p.product_brand,
+  category: p.product_category,
+
+  product_quantity: p.product_quantity, // ✅ STRING (ex: "25 Kg")
+  sell_qty: Number(p.quantity),          // ✅ NUMBER
+
+  rate: Number(p.rate),
+  stock: 9999,
+}));
 
       setBillProducts(mappedProducts);
 
@@ -130,6 +135,7 @@ useEffect(() => {
               category: p.category_name,
               quantity: p.quantity_name,
               rate: p.price,          // 🔥 map price → rate
+               stock: Number(p.stock || 0),
             }))
           : [];
 
@@ -194,17 +200,25 @@ const balanceDue = Math.max(
 
   /* ================= ADD PRODUCT ================= */
  const handleAddToBill = () => {
-  if (!selectedProduct || !sellQty) return;
-
-  const qty = Number(sellQty);
-
-  if (qty <= 0) {
-    alert("Enter valid quantity");
+  if (!selectedProduct) {
+    toast.warn("Please select a product");
     return;
   }
 
-  if (qty > selectedProduct.stock) {
-    alert("Not enough stock");
+  if (!sellQty) {
+    toast.error("Enter customer quantity");
+    return;
+  }
+
+  const qty = Number(sellQty); // ✅ DEFINE FIRST
+
+  if (isNaN(qty) || qty <= 0) {
+    toast.error("Enter a valid customer quantity");
+    return;
+  }
+
+  if (!isEdit && qty > selectedProduct.stock) {
+    toast.error("Not enough stock available");
     return;
   }
 
@@ -213,20 +227,20 @@ const balanceDue = Math.max(
       (p) => p.product_id === selectedProduct.id
     );
 
-    // 🔁 IF PRODUCT ALREADY EXISTS → MERGE
+    // 🔁 merge if already exists
     if (existingIndex !== -1) {
       return prev.map((item, index) =>
         index === existingIndex
           ? {
               ...item,
-              sell_qty: item.sell_qty + qty,      // increase customer qty
-              stock: item.stock - qty,             // reduce stock
+              sell_qty: item.sell_qty + qty,
+              stock: item.stock - qty,
             }
           : item
       );
     }
 
-    // ➕ NEW PRODUCT ROW
+    // ➕ new row
     return [
       ...prev,
       {
@@ -234,15 +248,17 @@ const balanceDue = Math.max(
         product_name: selectedProduct.product_name,
         brand: selectedProduct.brand,
         category: selectedProduct.category,
-        pack_qty: selectedProduct.quantity, // product qty
-        sell_qty: qty,                      // customer qty
+
+        product_quantity: selectedProduct.quantity,
+        sell_qty: qty,
+
         stock: selectedProduct.stock - qty,
-        rate: selectedProduct.price,
+        rate: selectedProduct.rate,
       },
     ];
   });
 
-  // 🔻 reduce stock in product list
+  // 🔻 reduce stock from master list
   setProductsList((prev) =>
     prev.map((p) =>
       p.id === selectedProduct.id
@@ -257,10 +273,22 @@ const balanceDue = Math.max(
 
 
 
+
   /* ================= REMOVE PRODUCT ================= */
-  const removeProduct = (index) => {
-    setBillProducts((prev) => prev.filter((_, i) => i !== index));
-  };
+ const removeProduct = (index) => {
+  const removed = billProducts[index];
+
+  setProductsList((prev) =>
+    prev.map((p) =>
+      p.id === removed.product_id
+        ? { ...p, stock: p.stock + removed.sell_qty }
+        : p
+    )
+  );
+
+  setBillProducts((prev) => prev.filter((_, i) => i !== index));
+};
+
 
   /* ================= ENSURE CUSTOMER ================= */
  const ensureCustomerExists = async () => {
@@ -310,39 +338,40 @@ const balanceDue = Math.max(
 
 
   /* ================= SAVE ================= */
- const handleSaveBilling = async () => {
-  if (!customerName || !customerPhone) {
-  alert("Customer name and phone are required");
-  return;
-}
+const handleSaveBilling = async () => {
+  if (!customerName.trim()) {
+    toast.error("Customer name is required");
+    return;
+  }
 
-if (!/^\d{10}$/.test(customerPhone)) {
-  alert("Enter valid 10-digit customer phone number");
-  return;
-}
+  if (!/^\d{10}$/.test(customerPhone)) {
+    toast.error("Enter a valid 10-digit customer phone number");
+    return;
+  }
+
+  if (!billProducts.length) {
+    toast.warn("Add at least one product to the bill");
+    return;
+  }
+
+  if (cashAmount + upiAmount !== advancePaid) {
+    toast.error("Cash + UPI amount must equal Advance Paid");
+    return;
+  }
+
+  if (!/^\d{10}$/.test(staffPhone)) {
+    toast.error("Enter a valid 10-digit staff phone number");
+    return;
+  }
+
+  if (!selectedBankId) {
+    toast.warn("Please select bank details");
+    return;
+  }
 
   try {
     const customer_id = await ensureCustomerExists();
     await ensureEmployeeExists();
-
-    if (!billProducts.length) {
-      alert("Add at least one product");
-      return;
-    }
-
-    if (cashAmount + upiAmount !== advancePaid) {
-      alert("Cash + UPI must equal Advance Paid");
-      return;
-    }
-
-    if (!/^\d{10}$/.test(staffPhone)) {
-      alert("Invalid staff phone");
-      return;
-    }
-    if (!selectedBankId) {
-  alert("Please select bank details");
-  return;
-}
 
     const payload = {
       customer_id,
@@ -353,37 +382,128 @@ if (!/^\d{10}$/.test(customerPhone)) {
       staff_name: staffName,
       staff_phone: staffPhone,
 
-      bank_id: selectedBankId, // 🔥 REQUIRED (temporary)
+      bank_id: selectedBankId,
 
       tax_gst_percent: gstPercent,
-      advance_paid: advancePaid,
-      cash_amount: cashAmount,
-      upi_amount: upiAmount,
+      advance_paid: Number(advancePaid),
+      cash_amount: Number(cashAmount),
+      upi_amount: Number(upiAmount),
 
       products: billProducts.map((p) => ({
         product_id: p.product_id,
-        quantity: p.sell_qty,
-        rate: p.rate,
+        quantity: Number(p.sell_qty),
+        product_quantity: p.product_quantity,
+        rate: Number(p.rate),
       })),
     };
 
-    console.log("FINAL BILLING PAYLOAD:", payload);
+    let billingId = id;
 
-        if (isEdit) {
-        await api.put(`/customer-billing/${id}`, payload);
-        navigate(`/invoice/print/${id}`);
-      } else {
-        const res = await createCustomerBilling(payload);
-        navigate(`/invoice/print/${res.billing_id}`);
-      }
+    if (isEdit) {
+      await api.put(`/customer-billing/${id}`, payload);
+    } else {
+      const res = await createCustomerBilling(payload);
+      billingId = res.billing_id;
+    }
 
-    navigate(`/invoice/print/${res.billing_id}`);
+    toast.success("Invoice saved successfully");
+
+    // 👉 OPEN PRINT PAGE
+    navigate(`/invoice/print/${billingId}`);
+
+    // 👉 AFTER PRINT → RESET BILLING PAGE
+    setTimeout(() => {
+      navigate("/product-billing", { replace: true });
+    }, 600);
+
   } catch (err) {
-    alert(err.response?.data?.message || "Invoice save failed");
+    toast.error(err.response?.data?.message || "Invoice save failed");
   }
 };
 
+ /* ================= SAVE DRAFT ================= */
+const handleSaveDraft = async () => {
+  if (!billProducts.length) {
+    toast.warn("Add at least one product before saving draft");
+    return;
+  }
 
+  try {
+    const customer_id = await ensureCustomerExists();
+    await ensureEmployeeExists();
+
+    const payload = {
+      customer_id,
+      customer_name: customerName,
+      phone_number: customerPhone,
+      gst_number: gstNumber || null,
+
+      staff_name: staffName,
+      staff_phone: staffPhone,
+
+      bank_id: selectedBankId,
+
+      tax_gst_percent: gstPercent,
+      advance_paid: Number(advancePaid),
+      cash_amount: Number(cashAmount),
+      upi_amount: Number(upiAmount),
+
+      status: "DRAFT",
+      print_required: false,
+
+      products: billProducts.map((p) => ({
+        product_id: p.product_id,
+        quantity: Number(p.sell_qty),
+        product_quantity: p.product_quantity,
+        rate: Number(p.rate),
+      })),
+    };
+
+    if (isEdit) {
+      await api.put(`/customer-billing/${id}`, payload);
+    } else {
+      await createCustomerBilling(payload);
+    }
+
+    toast.success("Draft saved successfully");
+
+    // 👉 RESET TO EMPTY BILLING PAGE
+    navigate("/product-billing", { replace: true });
+
+  } catch (err) {
+    toast.error(err.response?.data?.message || "Failed to save draft");
+  }
+};
+
+const handleDiscard = () => {
+  setCustomerName("");
+  setCustomerPhone("");
+  setCustomerAddress("");
+  setSelectedCustomerId(null);
+
+  setStaffName("");
+  setStaffPhone("");
+  setSelectedEmployeeId(null);
+
+  setBillProducts([]);
+  setSelectedProduct(null);
+  setSellQty("");
+
+  setAdvancePaid(0);
+  setCashAmount(0);
+  setUpiAmount(0);
+  setGstNumber("");
+  setGstPercent(18);
+  setSelectedBankId(null);
+
+  toast.info("Billing discarded");
+};
+
+useEffect(() => {
+  getCompanyDetails().then((res) => {
+    setCompany(res);
+  });
+}, []);
 
   return (
     <div className="product-billing">
@@ -627,9 +747,8 @@ if (!/^\d{10}$/.test(customerPhone)) {
                                 {p.brand} - {p.category}
                               </td>
 
-                              <td>
-                                {p.pack_qty} Kg
-                              </td>
+                              <td>{p.product_quantity}</td>
+
                               <td>{p.sell_qty}</td>
 
                                 <td>{p.stock}</td>
@@ -702,12 +821,18 @@ if (!/^\d{10}$/.test(customerPhone)) {
 
     {/* Bill Info */}
     <div className="row bill-info">
-      <div className="col-6">
-        <div className="label">Bill From</div>
-        <div className="name">BillMaster Pro Solutions</div>
-        <div className="text">123 Tech Park, Suite 404</div>
-        <div className="text">San Francisco, CA 94107</div>
-      </div>
+        {company && (
+            <div className="col-6">
+              <div className="label">Bill From</div>
+              <div className="name">{company.company_name}</div>
+              <div className="text">{company.company_address}</div>
+              <div className="text">
+                {company.district}, {company.state} - {company.pincode}
+              </div>
+            </div>
+          )}
+
+
 
       <div className="col-6 right">
         <div className="label">Bill To</div>
@@ -735,7 +860,8 @@ if (!/^\d{10}$/.test(customerPhone)) {
     billProducts.map((p, i) => (
       <div className="row product-row" key={i}>
         <div className="col-5">
-          {p.product_name} ({p.pack_qty} Kg)
+        {p.product_name} ({p.product_quantity})
+
         </div>
 
         <div className="col-2 center">
@@ -782,6 +908,7 @@ if (!/^\d{10}$/.test(customerPhone)) {
       <option value={12}>12%</option>
       <option value={18}>18%</option>
       <option value={28}>28%</option>
+      <option value={48}>48%</option>
     </select>
   </div>
 
@@ -844,6 +971,7 @@ if (!/^\d{10}$/.test(customerPhone)) {
       type="number"
       className="form-control"
       value={advancePaid}
+      onWheel={(e) => e.target.blur()}
       onChange={(e) => {
         const val = Number(e.target.value) || 0;
         setAdvancePaid(val);
@@ -931,7 +1059,7 @@ if (!/^\d{10}$/.test(customerPhone)) {
     </div>
 
     {/* CARD */}
-    <div className="col-4">
+    {/* <div className="col-4">
       <div
         className={`radio-card ${paymentMode === "card" ? "active" : ""}`}
         onClick={() => setPaymentMode("card")}
@@ -941,7 +1069,7 @@ if (!/^\d{10}$/.test(customerPhone)) {
         </div>
         <span>CARD</span>
       </div>
-    </div>
+    </div> */}
   </div>
 </div>
 
@@ -952,10 +1080,26 @@ if (!/^\d{10}$/.test(customerPhone)) {
       <i className="fi fi-tr-print me-2"></i>Save & Print
     </button>
 
-    <div className="invoice-footer">
-      <Link><i className="bi bi-save me-2"></i>Save Draft</Link>
-      <Link><i className="bi bi-x-circle-fill me-2"></i>Discard</Link>
-    </div>
+          <div className="invoice-footer">
+          <button
+            type="button"
+            className="btn me-3"
+            onClick={handleSaveDraft}
+          >
+            <i className="bi bi-save me-2"></i>
+            Save Draft
+          </button>
+
+          <button
+            type="button"
+            className="btn me-3"
+            onClick={handleDiscard}
+          >
+            <i className="bi bi-x-circle-fill me-2"></i>
+            Discard
+          </button>
+        </div>
+
   </div>
 </div>
 

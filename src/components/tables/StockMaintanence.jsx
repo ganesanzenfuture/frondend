@@ -134,7 +134,7 @@ export const StockMaintanence = ({ search }) => {
                       className="btn btn-sm btn-secondary me-2"
                       onClick={() => setViewEntry(e)}
                     >
-                      <i className="bi bi-eye"></i>
+                      <i className="bi bi-file-earmark-text"></i>
                     </button>
 
                     {/* <button

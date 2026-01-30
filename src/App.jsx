@@ -32,7 +32,7 @@ import { CustomerDetail } from "./pages/billing/customers/CustomerDetail";
 
 import { ReportLayout } from "./pages/billing/reports/ReportLayout";
 import { DailyReport } from "./pages/billing/reports/DailyReport";
-import { WeeklyReport } from "./pages/billing/reports/WeeklyReport";
+import { ProductSalesReport} from "./pages/billing/reports/WeeklyReport";
 import { MonthlyReport } from "./pages/billing/reports/MonthlyReport";
 
 
@@ -48,6 +48,9 @@ import { UserProfile } from "./pages/settings/UserProfile";
 import { BankDetails } from "./pages/settings/BankDetails";
 import { BankDetailsList } from "./pages/settings/BankDetailsList";
 import { AddBankDetails } from "./pages/settings/AddBankDetails";
+import { AddPayment } from "./pages/billing/accounts/AddPayment";
+import CompanyDetails from "./pages/settings/CompanyDetails";
+import CreateProfile from "./pages/settings/CreateProfile"
 Modal.setAppElement("#root");
 
 /* ======================
@@ -60,6 +63,7 @@ const DashboardLayout = () => (
       <Topbar />
       <div className="dashboard_container">
         <Routes>
+          <Route path="/product-billing" element={<ProductBilling />} />
          <Route path="billing" element={<ProductBilling />} />
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="products" element={<ProductLayout />}>
@@ -86,6 +90,7 @@ const DashboardLayout = () => (
          <Route path="/accounts" element={<AccountsLayout />}>
 
             <Route path="pending-list" element={<PendingPaymentList />} />
+            <Route path="add-payment/:id" element={<AddPayment />} />
 
             <Route path="stock-maintanence" element={<StockMaintanence />}>
               <Route index element={<StockList />} />
@@ -100,7 +105,7 @@ const DashboardLayout = () => (
 
           <Route path="report" element={<ReportLayout />}>
             <Route path="daily" element={<DailyReport />} />
-            <Route path="weekly" element={<WeeklyReport />} />
+            <Route path="weekly" element={<ProductSalesReport />} />
             <Route path="monthly" element={<MonthlyReport />} />
           </Route>
 
@@ -114,9 +119,11 @@ const DashboardLayout = () => (
               <Route path="add-bank" element={<AddBankDetails />} />
               <Route path="edit-bank/:id" element={<AddBankDetails />} />
             </Route>
+            <Route path="create-profile" element={<CreateProfile/>}/>
+            <Route path="company-details" element={<CompanyDetails/>}/> 
           </Route>
           <Route path="notifications" element={<Notifications />} />
-       <Route path="invoice/print/:id" element={<Invoice />} />
+         <Route path="invoice/print/:id" element={<Invoice />} />
 
         </Routes>
       </div>

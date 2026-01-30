@@ -73,4 +73,17 @@
   font-weight: 400;
 }
 
+.icon-btn {
+  color: black;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.icon-btn.edit-icon:hover {
+  color: #0d6efd; /* bootstrap primary */
+}
+
+.icon-btn.delete-icon:hover {
+  color: #dc3545; /* bootstrap danger */
+}
 
