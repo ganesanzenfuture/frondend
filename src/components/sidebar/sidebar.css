@@ -155,10 +155,19 @@
   box-shadow: var(--shadow-soft);
 }
 
-.sidebar_menu.active .sidebar_icon,
+
 .sidebar_menu.active .sidebar_text,
 .sidebar_menu.active .arrow {
   color: #fff;
+}
+
+.sidebar_menu.active .sidebar_icon{
+  color: var(--primary);
+}
+
+.sidebar_menu.active .menu_header:hover .sidebar_icon{
+  color: var(--primary);
+  background: #fff;
 }
 
 /* =========================================================
@@ -201,7 +210,7 @@
   padding: 8px 12px;
   border-radius: 10px;
   font-size: 13px;
-  color: var(--text-muted);
+  color: #444;
   transition: all 0.25s ease;
 }
 

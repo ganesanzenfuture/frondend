@@ -60,11 +60,9 @@
   gap: 20px 40px;
 }
 
-.info-row span {
-  display: block;
-  font-size: 13px;
+.bank-details-card p b {
+  font-size: 14px;
   color: var(--main-color);
-  margin-bottom: 4px;
 }
 
 .info-row strong {

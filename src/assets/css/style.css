@@ -2,7 +2,9 @@
   --gradient-color: linear-gradient(90deg, rgba(212, 72, 59, 1) 0%, rgba(181, 33, 20, 1) 50%, rgba(143, 12, 0, 1) 100%);
   --main-color: rgba(143, 12, 0, 1);
 }
-
+.common {
+  color: var(--main-color);
+}
 .common-table-wrapper {
   background: white;
   border-radius: 5px;
@@ -13,10 +15,10 @@
   width: 100%;
   border-collapse: collapse;
 }
-.common-table thead {
+.common-table thead , .common-table .thead {
   background: var(--main-color);
 }
-.common-table th {
+.common-table  th {
   padding: 12px 10px;
   text-align: left;
   font-size: 13px;
@@ -251,7 +253,9 @@
 .login_detail .login_img .title {
   font-size: 70px;
   color: transparent;
-  text-shadow: 0 0.15em 15px rgb(154 18 6), 0 1px 0 rgb(159 21 8);
+  text-shadow:
+    0 0.15em 15px rgb(154 18 6),
+    0 1px 0 rgb(159 21 8);
   text-transform: uppercase;
   font-weight: 800;
 
@@ -411,6 +415,55 @@
   background: #f8f9fa;
   color: var(--main-color);
   padding: 12px 15px;
+}
+
+.modal_form .form_title {
+  margin-bottom: 20px;
+  border-bottom: 1px solid #efefef;
+  padding-bottom: 10px;
+}
+.modal_form .form_title .title {
+  font-size: 18px;
+  margin-bottom: 0px;
+}
+.modal_form .form_content .form-check-input:checked {
+  border-color: var(--main-color) !important;
+  background-color: var(--main-color) !important;
+  box-shadow: none !important;
+}
+.modal_form .form_content .form-select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+.modal_form .form_content .form-select option:hover {
+  box-shadow: 0 0 10px 100px red inset !important;
+  color: white;
+}
+.modal_form .form_content .form-select option:checked {
+  box-shadow: 0 0 10px 100px red inset !important;
+}
+.modal_form .form_content .form-label,
+.modal_form .form_content .form-check-label {
+  color: #000;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+.modal_form .form_content .form-control,
+.modal_form .form_content .form-select {
+  font-size: 14px;
+  padding: 10px 12px;
+  color: #666;
+  outline: none;
+}
+.modal_form .form_content .form-control:focus,
+.modal_form .form_content .form-select:focus {
+  box-shadow: none;
+  border-color: var(--main-color);
+}
+
+.modal_form .form_content .form-select option:hover {
+  background-color: var(--main-color) !important;
 }
 
 .change-password {

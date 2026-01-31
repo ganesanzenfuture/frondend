@@ -91,12 +91,12 @@ const CompanyDetails = () => {
       {/* CARD GRID */}
       <div className="row g-4 company-grid">
         {list.map((c) => (
-          <div className="col-md-12 col-lg-6" key={c.id}>
+          <div className="col-md-12 col-lg-12" key={c.id}>
             <div className="card shadow-sm h-100 position-relative">
               {/* ICON BUTTONS */}
               <div className="position-absolute top-0 end-0 p-2 d-flex gap-2">
                 <button
-                  className="btn btn-sm btn-light border text-primary"
+                  className="btn btn-sm btn-light border text-warning"
                   onClick={() => handleEdit(c)}
                   title="Edit"
                 >
@@ -114,71 +114,71 @@ const CompanyDetails = () => {
               <div className="card-body">
                 <h5 className="card-title text-danger mb-3">{c.company_name || "-"}</h5>
 
-                <div className="d-flex py-1 border-bottom">
-                  <div className="fw-semibold text-primary" style={{ width: "160px" }}>
+                <div className="d-flex py-3 border-bottom">
+                  <div className="fw-semibold common" style={{ width: "160px" , fontSize:"14px" }}>
                     company_quotes :
                   </div>
                   <div className="flex-grow-1">{c.company_quotes || "-"}</div>
                 </div>
 
-                <div className="d-flex py-1 border-bottom">
-                  <div className="fw-semibold text-primary" style={{ width: "160px" }}>
+                <div className="d-flex py-3 border-bottom">
+                  <div className="fw-semibold common" style={{ width: "160px" , fontSize:"14px" }}>
                     company_address :
                   </div>
                   <div className="flex-grow-1">{c.company_address || "-"}</div>
                 </div>
 
-                <div className="d-flex py-1 border-bottom">
-                  <div className="fw-semibold text-primary" style={{ width: "160px" }}>
+                <div className="d-flex py-3 border-bottom">
+                  <div className="fw-semibold common" style={{ width: "160px" , fontSize:"14px" }}>
                     district :
                   </div>
                   <div className="flex-grow-1">{c.district || "-"}</div>
                 </div>
 
-                <div className="d-flex py-1 border-bottom">
-                  <div className="fw-semibold text-primary" style={{ width: "160px" }}>
+                <div className="d-flex py-3 border-bottom">
+                  <div className="fw-semibold common" style={{ width: "160px" , fontSize:"14px" }}>
                     state :
                   </div>
                   <div className="flex-grow-1">{c.state || "-"}</div>
                 </div>
 
-                <div className="d-flex py-1 border-bottom">
-                  <div className="fw-semibold text-primary" style={{ width: "160px" }}>
+                <div className="d-flex py-3 border-bottom">
+                  <div className="fw-semibold common" style={{ width: "160px" , fontSize:"14px" }}>
                     pincode :
                   </div>
                   <div className="flex-grow-1">{c.pincode || "-"}</div>
                 </div>
 
-                <div className="d-flex py-1 border-bottom">
-                  <div className="fw-semibold text-primary" style={{ width: "160px" }}>
+                <div className="d-flex py-3 border-bottom">
+                  <div className="fw-semibold common" style={{ width: "160px" , fontSize:"14px" }}>
                     phone :
                   </div>
                   <div className="flex-grow-1">{c.phone || "-"}</div>
                 </div>
 
-                <div className="d-flex py-1 border-bottom">
-                  <div className="fw-semibold text-primary" style={{ width: "160px" }}>
+                <div className="d-flex py-3 border-bottom">
+                  <div className="fw-semibold common" style={{ width: "160px" , fontSize:"14px" }}>
                     email :
                   </div>
                   <div className="flex-grow-1">{c.email || "-"}</div>
                 </div>
 
-                <div className="d-flex py-1 border-bottom">
-                  <div className="fw-semibold text-primary" style={{ width: "160px" }}>
+                <div className="d-flex py-3 border-bottom">
+                  <div className="fw-semibold common" style={{ width: "160px" , fontSize:"14px" }}>
                     website :
                   </div>
                   <div className="flex-grow-1">{c.website || "-"}</div>
                 </div>
 
-                <div className="d-flex py-1 border-bottom">
-                  <div className="fw-semibold text-primary" style={{ width: "160px" }}>
+                <div className="d-flex py-3 border-bottom">
+                  <div className="fw-semibold common" style={{ width: "160px" , fontSize:"14px" }}>
                     disclaimer :
                   </div>
                   <div className="flex-grow-1">{c.disclaimer || "-"}</div>
                 </div>
 
-                <div className="d-flex py-1">
-                  <div className="fw-semibold text-primary" style={{ width: "160px" }}>
+                <div className="d-flex py-3">
+                  <div className="fw-semibold common" style={{ width: "160px" , fontSize:"14px" }}>
                     instruction :
                   </div>
                   <div className="flex-grow-1">{c.instruction || "-"}</div>
@@ -208,10 +208,11 @@ const CompanyDetails = () => {
               </div>
 
               <form onSubmit={handleSubmit}>
-                <div className="modal-body row g-3">
-                  <h6 className="text-primary">Basic Info</h6>
+                <div className="modal-body ">
+                  <h6 className="common">Basic Info</h6>
 
-                  <div className="col-md-4">
+                  <div className="row gy-3">
+                    <div className="col-md-4">
                     <label className="form-label">Company Name *</label>
                     <input
                       name="company_name"
@@ -232,7 +233,9 @@ const CompanyDetails = () => {
                     />
                   </div>
 
-                  <h6 className="text-primary mt-3">Address</h6>
+                 <div className="col-md-12">
+                   <h6 className="common ">Address</h6>
+                 </div>
 
                   <div className="col-md-12">
                     <label className="form-label">Address</label>
@@ -275,7 +278,9 @@ const CompanyDetails = () => {
                     />
                   </div>
 
-                  <h6 className="text-primary mt-3">Contact</h6>
+                  <div className="col-md-12">
+                    <h6 className="common ">Contact</h6>
+                  </div>
 
                   <div className="col-md-4">
                     <label className="form-label">Phone</label>
@@ -307,7 +312,9 @@ const CompanyDetails = () => {
                     />
                   </div>
 
-                  <h6 className="text-primary mt-3">Legal</h6>
+                  <div className="col-md-12">
+                    <h6 className="common ">Legal</h6>
+                  </div>
 
                   <div className="col-md-12">
                     <label className="form-label">Disclaimer</label>
@@ -330,15 +337,16 @@ const CompanyDetails = () => {
                       rows="2"
                     />
                   </div>
+                  </div>
                 </div>
 
                 <div className="modal-footer">
-                  <button type="submit" className="btn btn-success">
+                  <button type="submit" className="btn main-btn">
                     {editId ? "Update Company" : "Save Company"}
                   </button>
                   <button
                     type="button"
-                    className="btn btn-secondary"
+                    className="btn filter-btn"
                     onClick={() => setShowModal(false)}
                   >
                     Cancel

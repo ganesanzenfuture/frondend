@@ -38,66 +38,56 @@ export const ProductList = () => {
   return (
     <div className="product_detail">
       {/* HEADER */}
-      <div className="product-header mb-4">
-        <div className="d-flex justify-content-between align-items-center flex-wrap gap-3">
-
+      <div className="form_element mb-4">
+        <div className="form_content">
           {/* FILTERS */}
           <div className="d-flex align-items-center gap-2 flex-wrap">
+            <div className="flex-fill">
+              <div className="d-flex align-items-center gap-2 flex-wrap flex-md-nowrap">
+                {/* BRAND */}
+                <select className="form-select  product-filter" value={brand} onChange={(e) => setBrand(e.target.value)}>
+                  <option value="">Brand</option>
+                  {brands.map((b) => (
+                    <option key={b.id} value={b.name}>
+                      {b.name}
+                    </option>
+                  ))}
+                </select>
 
-            {/* BRAND */}
-            <select
-              className="form-select form-select-sm product-filter"
-              value={brand}
-              onChange={(e) => setBrand(e.target.value)}
-            >
-              <option value="">Brand</option>
-              {brands.map((b) => (
-                <option key={b.id} value={b.name}>
-                  {b.name}
-                </option>
-              ))}
-            </select>
+                {/* CATEGORY */}
+                <select className="form-select  product-filter" value={category} onChange={(e) => setCategory(e.target.value)}>
+                  <option value="">Category</option>
+                  {categories.map((c) => (
+                    <option key={c.id} value={c.name}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
 
-            {/* CATEGORY */}
-            <select
-              className="form-select form-select-sm product-filter"
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-            >
-              <option value="">Category</option>
-              {categories.map((c) => (
-                <option key={c.id} value={c.name}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
-
-
-            {/* SEARCH */}
-            <div className="search-pill">
-              <i className="bi bi-search"></i>
-              <input
-                type="text"
-                placeholder="Search products..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
+                {/* SEARCH */}
+                <div className="search-box">
+                  <input
+                    type="text"
+                    className="search-input"
+                    placeholder="Search products..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                  />
+                  <i className="bi bi-search search-icon"></i>
+                </div>
+                {/* ADD */}
+              </div>
             </div>
-
+            <button
+              className="btn main-btn flex-fill"
+              onClick={() => {
+                setEditProduct(null);
+                setShowAddModal(true);
+              }}>
+              <i className="bi bi-plus-lg me-1"></i>
+              Add Product
+            </button>
           </div>
-
-          {/* ADD */}
-          <button
-            className="btn main-btn"
-            onClick={() => {
-              setEditProduct(null);
-              setShowAddModal(true);
-            }}
-          >
-            <i className="bi bi-plus-lg me-1"></i>
-            Add Product
-          </button>
-
         </div>
       </div>
 

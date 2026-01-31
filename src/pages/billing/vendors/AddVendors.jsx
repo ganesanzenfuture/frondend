@@ -218,7 +218,7 @@ export const AddVendors = ({ closeModal, refresh, editData }) => {
 
         {/* ===== ACTION ===== */}
         <div className="col-12 text-end mt-3">
-          <button className="btn btn-danger" disabled={loading}>
+          <button className="btn main-btn" disabled={loading}>
             {loading
               ? "Saving..."
               : isEditMode

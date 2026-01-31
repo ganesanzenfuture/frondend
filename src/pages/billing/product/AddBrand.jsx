@@ -94,7 +94,7 @@ export const AddBrand = () => {
     <>
       <div className="row gy-4">
         {/* ================= FORM ================= */}
-        <div className="col-lg-8">
+        <div className="col-lg-12">
           <div className="form_element">
             <div className="form_title">
               <h5 className="title">Add Brand</h5>
@@ -118,7 +118,7 @@ export const AddBrand = () => {
                   )}
                 </div>
 
-                <div className="col-md-3">
+                <div className="col-md-3 text-lg-end">
                   <button
                     className="btn main-btn"
                     disabled={!brandName.trim()}
@@ -132,7 +132,7 @@ export const AddBrand = () => {
         </div>
 
         {/* ================= TABLE ================= */}
-        <div className="col-lg-8">
+        <div className="col-lg-12">
           <div className="common-table-wrapper">
             <table className="common-table table-striped">
               <thead>

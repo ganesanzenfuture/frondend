@@ -589,12 +589,15 @@ useEffect(() => {
             <div className="row gy-4">
              {/* ================= STAFF (SMALL – TOP LEFT) ================= */}
 <div className="col-lg-12">
-  <div className="staff-small-box">
+  <div className="product-list-box">
+    <h5 className="box-title">
+                    <i className="fi fi-tr-user-pen"></i> Staff Details
+                  </h5>
     <div className="row g-2">
 
       {/* STAFF NAME */}
       <div className="col-md-6 position-relative">
-        <label className="staff-label">Staff Name</label>
+        <label className="form-label">Staff Name</label>
         <input
           className="form-control form-control-sm staff-input"
           value={staffName}
@@ -640,7 +643,7 @@ useEffect(() => {
 
       {/* STAFF PHONE */}
       <div className="col-md-6">
-        <label className="staff-label">Staff Phone</label>
+        <label className="form-label">Staff Phone</label>
         <input
           className="form-control form-control-sm staff-input"
           value={staffPhone}
@@ -872,12 +875,30 @@ useEffect(() => {
         <div className="date">Date</div>
         <div className="due">{today}</div>
 
-        <input
-          className="form-control mt-2"
+        {/* <input
+          className="form-control form-control-sm mt-2"
           placeholder="GST Number"
           value={gstNumber}
           onChange={(e) => setGstNumber(e.target.value.toUpperCase())}
-        />
+        /> */}
+    <input
+  className="form-control form-control-sm mt-2"
+  placeholder="GST Number"
+  value={gstNumber}
+  onChange={(e) => {
+    const value = e.target.value.toUpperCase();
+
+    // ✅ Limit 15 characters
+    if (value.length > 15) return;
+
+    setGstNumber(value);
+  }}
+  maxLength={15}
+  pattern="^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$"
+  title="Enter Valid GST Number (Example: 22AAAAA0000A1Z5)"
+  required
+/>
+
       </div>
          {/* ================= BANK SELECT ================= */}
                 <div className="mt-3">
@@ -900,7 +921,7 @@ useEffect(() => {
     </div>
 
     {/* Bill Info */}
-    <div className="row bill-info">
+    <div className="row bill-info justify-content-end">
         {company && (
             <div className="col-6">
               <div className="label">Bill From</div>
@@ -1173,7 +1194,7 @@ useEffect(() => {
           <div className="invoice-footer">
           <button
             type="button"
-            className="btn me-3"
+            className="btn btn-sm me-3"
             onClick={handleSaveDraft}
           >
             <i className="bi bi-save me-2"></i>
@@ -1182,7 +1203,7 @@ useEffect(() => {
 
           <button
             type="button"
-            className="btn me-3"
+            className="btn btn-sm me-3"
             onClick={handleDiscard}
           >
             <i className="bi bi-x-circle-fill me-2"></i>

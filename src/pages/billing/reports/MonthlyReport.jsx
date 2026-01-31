@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { getAllCustomerBillings } from "../../../services/customerBilling.service";
 import { toast } from "react-toastify";
+import "../../../assets/css/style.css";
 
 export const MonthlyReport = () => {
-
   // 🔹 TODAY DATE (YYYY-MM-DD)
   const today = new Date().toISOString().split("T")[0];
 
   const [billings, setBillings] = useState([]);
   const [fromDate, setFromDate] = useState(today); // ✅ DEFAULT TODAY
-  const [toDate, setToDate] = useState(today);     // ✅ DEFAULT TODAY
+  const [toDate, setToDate] = useState(today); // ✅ DEFAULT TODAY
 
   const [summary, setSummary] = useState({
     invoiceCount: 0,
@@ -52,10 +52,7 @@ export const MonthlyReport = () => {
     billings.forEach((bill) => {
       const billDate = new Date(bill.created_at);
 
-      if (
-        (!fromDate || billDate >= new Date(fromDate)) &&
-        (!toDate || billDate <= new Date(toDate + "T23:59:59"))
-      ) {
+      if ((!fromDate || billDate >= new Date(fromDate)) && (!toDate || billDate <= new Date(toDate + "T23:59:59"))) {
         invoiceCount++;
 
         totalSales += Number(bill.subtotal || 0);
@@ -86,97 +83,90 @@ export const MonthlyReport = () => {
   return (
     <div className="row justify-content-center">
       <div className="col-lg-8">
-
         {/* DATE FILTER */}
-        <div className="d-flex justify-content-end gap-2 mb-3">
-          <input
-            type="date"
-            className="form-control"
-            style={{ maxWidth: "170px" }}
-            value={fromDate}
-            onChange={(e) => setFromDate(e.target.value)}
-          />
-          <input
-            type="date"
-            className="form-control"
-            style={{ maxWidth: "170px" }}
-            value={toDate}
-            onChange={(e) => setToDate(e.target.value)}
-          />
+        <div className="modal_form mb-3">
+          <div className="form_content ">
+            <div className="d-flex justify-content-end gap-2 ">
+              <input
+                type="date"
+                className="form-control"
+                style={{ maxWidth: "170px" }}
+                value={fromDate}
+                onChange={(e) => setFromDate(e.target.value)}
+              />
+              <input type="date" className="form-control" style={{ maxWidth: "170px" }} value={toDate} onChange={(e) => setToDate(e.target.value)} />
+            </div>
+          </div>
         </div>
 
         {/* SUMMARY TABLE */}
-        <div className="table-responsive">
-          <table className="table table-bordered align-middle">
-            <tbody>
-
-              <tr className="table-info">
+        <div className="common-table-wrapper ">
+          <table className=" common-table table-striped align-middle">
+            <thead>
+              <tr className="thead">
                 <th>Total Invoices</th>
-                <td className="text-end fw-bold">
-                  {summary.invoiceCount}
+                <th className="text-end fw-bold">{summary.invoiceCount}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <b>Total Sales Amount</b>
                 </td>
+                <td className="text-end fw-bold">₹ {summary.totalSales.toFixed(2)}</td>
               </tr>
 
               <tr>
-                <th>Total Sales Amount</th>
-                <td className="text-end fw-bold">
-                  ₹ {summary.totalSales.toFixed(2)}
+                <td>
+                  <b>Total CGST Amount</b>
                 </td>
+                <td className="text-end">₹ {summary.totalCGST.toFixed(2)}</td>
               </tr>
 
               <tr>
-                <th>Total CGST Amount</th>
-                <td className="text-end">
-                  ₹ {summary.totalCGST.toFixed(2)}
+                <td>
+                  <b>Total SGST Amount</b>
                 </td>
+                <td className="text-end">₹ {summary.totalSGST.toFixed(2)}</td>
               </tr>
 
               <tr>
-                <th>Total SGST Amount</th>
-                <td className="text-end">
-                  ₹ {summary.totalSGST.toFixed(2)}
+                <td>
+                  <b>Total GST Amount</b>
                 </td>
-              </tr>
-
-              <tr>
-                <th>Total GST Amount</th>
-                <td className="text-end">
-                  ₹ {summary.totalGST.toFixed(2)}
-                </td>
+                <td className="text-end">₹ {summary.totalGST.toFixed(2)}</td>
               </tr>
 
               <tr className="table-light">
-                <th>Grand Total</th>
-                <td className="text-end fw-bold text-primary">
-                  ₹ {summary.grandTotal.toFixed(2)}
+                <td>
+                  <b>Grand Total</b>
                 </td>
+                <td className="text-end fw-bold text-primary">₹ {summary.grandTotal.toFixed(2)}</td>
               </tr>
 
               <tr>
-                <th>Advance Paid Amount</th>
-                <td className="text-end text-success">
-                  ₹ {summary.advancePaid.toFixed(2)}
+                <td>
+                  <b>Advance Paid Amount</b>
                 </td>
+                <td className="text-end text-success">₹ {summary.advancePaid.toFixed(2)}</td>
               </tr>
 
               <tr>
-                <th>Advance Paid – Cash</th>
-                <td className="text-end">
-                  ₹ {summary.advanceCash.toFixed(2)}
+                <td>
+                  <b>Advance Paid – Cash</b>
                 </td>
+                <td className="text-end">₹ {summary.advanceCash.toFixed(2)}</td>
               </tr>
 
               <tr>
-                <th>Advance Paid – UPI</th>
-                <td className="text-end">
-                  ₹ {summary.advanceUPI.toFixed(2)}
+                <td>
+                  <b>Advance Paid – UPI</b>
                 </td>
+                <td className="text-end">₹ {summary.advanceUPI.toFixed(2)}</td>
               </tr>
-
             </tbody>
           </table>
         </div>
-
       </div>
     </div>
   );

@@ -193,13 +193,13 @@ export const Invoice = () => {
   <td colSpan="2" style={{ padding: 0 }}>
     <table style={{ width: "100%", borderCollapse: "collapse" }}>
       <tbody>
-        <tr>
-          <td style={{ border: "1px solid #000", padding: "4px" }}>
+        <tr className="border-none">
+          <td style={{ border: "none", padding: "4px" }}>
             GST ({billing.tax_gst_percent}%)
           </td>
           <td
             style={{
-              border: "1px solid #000",
+              border: "none",
               padding: "4px",
               textAlign: "center",
             }}
@@ -209,12 +209,12 @@ export const Invoice = () => {
         </tr>
 
         <tr>
-          <td style={{ border: "1px solid #000", padding: "4px" }}>
+          <td style={{ border: "none", padding: "4px" }}>
             CGST ({billing.tax_cgst_percent}%)
           </td>
           <td
             style={{
-              border: "1px solid #000",
+              border: "none",
               padding: "4px",
               textAlign: "center",
             }}
@@ -224,12 +224,12 @@ export const Invoice = () => {
         </tr>
 
         <tr>
-          <td style={{ border: "1px solid #000", padding: "4px" , }}>
+          <td style={{ border: "none", padding: "4px" , }}>
             SGST ({billing.tax_sgst_percent}%)
           </td>
           <td
             style={{
-              border: "1px solid #000",
+              border: "none",
               padding: "4px",
               textAlign: "center",
             }}

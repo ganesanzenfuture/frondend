@@ -1,10 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-  createQuantity,
-  getQuantity,
-  updateQuantity,
-  deleteQuantity,
-} from "../../../services/quantity.service";
+import { createQuantity, getQuantity, updateQuantity, deleteQuantity } from "../../../services/quantity.service";
 import { getBrandCategoryDropdown } from "../../../services/category.service";
 import { toast } from "react-toastify";
 export const AddQuantity = () => {
@@ -24,7 +19,7 @@ export const AddQuantity = () => {
 
   const [error, setError] = useState("");
 
-  const UNITS = ["Qty", "Kg", "Litre", "Pack","Unit","Others"];
+  const UNITS = ["Qty", "Kg", "Litre", "Pack", "Unit", "Others"];
 
   useEffect(() => {
     loadData();
@@ -95,7 +90,7 @@ export const AddQuantity = () => {
 
     setEditingId(null);
     loadData();
-    toast.success("Quantity Updated sucessfully")
+    toast.success("Quantity Updated sucessfully");
   };
 
   const cancelEdit = () => {
@@ -111,67 +106,59 @@ export const AddQuantity = () => {
       await deleteQuantity(id);
       loadData();
       toast.error("Quantity has been deleted");
-
     }
   };
 
   return (
     <div className="row gy-4">
       {/* ================= FORM ================= */}
-      <div className="col-lg-10">
-        <form className="row gy-3" onSubmit={handleSubmit}>
-          <div className="col-md-6">
-            <select
-              className="form-select"
-              value={selectedBC}
-              onChange={(e) => setSelectedBC(e.target.value)}
-            >
-              <option value="">Select Brand - Category</option>
-              {brandCategories.map((bc) => (
-                <option
-                  key={`${bc.brand_id}-${bc.category_id}`}
-                  value={`${bc.brand_id}-${bc.category_id}`}
-                >
-                  {bc.label}
-                </option>
-              ))}
-            </select>
-          </div>
+      <div className="col-lg-12">
+        <div className="form_element">
+          <div className="form_content">
+            <form className="row gy-3" onSubmit={handleSubmit}>
+              <div className="col-md-4">
+                <select className="form-select" value={selectedBC} onChange={(e) => setSelectedBC(e.target.value)}>
+                  <option value="">Select Brand - Category</option>
+                  {brandCategories.map((bc) => (
+                    <option key={`${bc.brand_id}-${bc.category_id}`} value={`${bc.brand_id}-${bc.category_id}`}>
+                      {bc.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-          <div className="col-md-3">
-            <input
-              type="number"
-              min="1"
-              className="form-control"
-              placeholder="Amount"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-            />
-          </div>
+              <div className="col-md-3">
+                <input
+                  type="number"
+                  min="1"
+                  className="form-control"
+                  placeholder="Amount"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                />
+              </div>
 
-          <div className="col-md-3">
-            <select
-              className="form-select"
-              value={unit}
-              onChange={(e) => setUnit(e.target.value)}
-            >
-              {UNITS.map((u) => (
-                <option key={u} value={u}>
-                  {u}
-                </option>
-              ))}
-            </select>
-          </div>
+              <div className="col-md-3">
+                <select className="form-select" value={unit} onChange={(e) => setUnit(e.target.value)}>
+                  {UNITS.map((u) => (
+                    <option key={u} value={u}>
+                      {u}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-          <div className="col-md-12">
-            <button className="btn main-btn">Add Quantity</button>
-            {error && <p className="text-danger mt-2">{error}</p>}
+              <div className="col-md-2">
+                <button className="btn main-btn">Add Quantity</button>
+              </div>
+              <div className="col-md-12">{error && <p className="text-danger mt-2">{error}</p>}</div>
+            </form>
           </div>
-        </form>
+        </div>
       </div>
 
       {/* ================= TABLE ================= */}
-      <div className="col-lg-10">
+      <div className="col-lg-12">
         <table className="common-table table-striped">
           <thead>
             <tr>
@@ -186,16 +173,9 @@ export const AddQuantity = () => {
               <tr key={q.id}>
                 <td>
                   {editingId === q.id ? (
-                    <select
-                      className="form-select"
-                      value={editBC}
-                      onChange={(e) => setEditBC(e.target.value)}
-                    >
+                    <select className="form-select" value={editBC} onChange={(e) => setEditBC(e.target.value)}>
                       {brandCategories.map((bc) => (
-                        <option
-                          key={`${bc.brand_id}-${bc.category_id}`}
-                          value={`${bc.brand_id}-${bc.category_id}`}
-                        >
+                        <option key={`${bc.brand_id}-${bc.category_id}`} value={`${bc.brand_id}-${bc.category_id}`}>
                           {bc.label}
                         </option>
                       ))}
@@ -208,17 +188,8 @@ export const AddQuantity = () => {
                 <td>
                   {editingId === q.id ? (
                     <div className="d-flex gap-2">
-                      <input
-                        type="number"
-                        className="form-control"
-                        value={editAmount}
-                        onChange={(e) => setEditAmount(e.target.value)}
-                      />
-                      <select
-                        className="form-select"
-                        value={editUnit}
-                        onChange={(e) => setEditUnit(e.target.value)}
-                      >
+                      <input type="number" className="form-control" value={editAmount} onChange={(e) => setEditAmount(e.target.value)} />
+                      <select className="form-select" value={editUnit} onChange={(e) => setEditUnit(e.target.value)}>
                         {UNITS.map((u) => (
                           <option key={u} value={u}>
                             {u}
@@ -234,35 +205,19 @@ export const AddQuantity = () => {
                 <td className="d-flex justify-content-end">
                   {editingId === q.id ? (
                     <>
-                      <button
-                        type="button"
-                        className="btn btn-success me-2"
-                        onClick={() => saveEdit(q.id)}
-                      >
+                      <button type="button" className="btn btn-success me-2" onClick={() => saveEdit(q.id)}>
                         ✔
                       </button>
-                      <button
-                        type="button"
-                        className="btn btn-secondary"
-                        onClick={cancelEdit}
-                      >
+                      <button type="button" className="btn btn-secondary" onClick={cancelEdit}>
                         ✖
                       </button>
                     </>
                   ) : (
                     <>
-                      <button
-                        type="button"
-                        className="btn btn-warning me-2"
-                        onClick={() => startEdit(q)}
-                      >
+                      <button type="button" className="btn btn-warning me-2" onClick={() => startEdit(q)}>
                         <i className="bi bi-pencil"></i>
                       </button>
-                      <button
-                        type="button"
-                        className="btn btn-danger"
-                        onClick={() => handleDelete(q.id)}
-                      >
+                      <button type="button" className="btn btn-danger" onClick={() => handleDelete(q.id)}>
                         <i className="bi bi-trash"></i>
                       </button>
                     </>

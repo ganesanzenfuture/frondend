@@ -107,7 +107,7 @@ export const AddCustomers = ({ closeModal, editData, refresh }) => {
 
   return (
     <form onSubmit={handleSubmit} className="customer-modal-form">
-      <div className="row g-3">
+      <div className="row gy-3">
 
         {/* ===== Editable Fields ===== */}
         <div className="col-md-4">
@@ -208,7 +208,7 @@ export const AddCustomers = ({ closeModal, editData, refresh }) => {
         )}
 
         <div className="col-12 text-end mt-3">
-          <button className="btn btn-danger" disabled={loading}>
+          <button className="btn main-btn" disabled={loading}>
             {loading
               ? "Saving..."
               : editData

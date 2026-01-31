@@ -175,7 +175,6 @@ export const Login = () => {
             <h4 className="title mb-4">
               Welcome to <br /> Billing System
             </h4>
-            <img src={LoginImg} alt="Login" className="img-fluid" />
           </div>
         </div>
 

@@ -66,6 +66,13 @@ export const AddBankDetails = () => {
   const handleSubmit = async (e) => {
   e.preventDefault();
 
+  // const ifscRegex = /^[A-Z]{4}0[A-Z0-9]{6}$/;
+
+  // if (!ifscRegex.test(formData.ifsc_code)) {
+  //   alert("Invalid IFSC Code format (Example: SBIN0001234)");
+  //   return;
+  // }
+
   // 🔥 FRONTEND VALIDATION FIRST
   if (!id && !formData.qr_image) {
     alert("QR code image is required");
@@ -133,23 +140,35 @@ export const AddBankDetails = () => {
 
               {/* TEXT FIELDS */}
               {[
-                ["Account Name", "account_name"],
-                ["Bank Name", "bank_name"],
-                ["Account Number", "account_number"],
-                ["Branch", "branch"],
-                ["IFSC Code", "ifsc_code"],
-              ].map(([label, name]) => (
-                <div className="col-md-4" key={name}>
-                  <label className="form-label">{label}</label>
-                  <input
-                    className="form-control"
-                    name={name}
-                    value={formData[name]}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-              ))}
+  ["Account Name", "account_name"],
+  ["Bank Name", "bank_name"],
+  ["Account Number", "account_number"],
+  ["Branch", "branch"],
+  ["IFSC Code", "ifsc_code"],
+].map(([label, name]) => (
+  <div className="col-md-4" key={name}>
+    <label className="form-label">{label}</label>
+    <input
+      className="form-control"
+      name={name}
+      value={formData[name]}
+      onChange={(e) => {
+        let value = e.target.value;
+
+        // ✅ IFSC SPECIAL RULE
+        if (name === "ifsc_code") {
+          value = value.toUpperCase(); // auto uppercase
+          if (value.length > 11) return; // stop more than 11
+        }
+
+        setFormData((prev) => ({ ...prev, [name]: value }));
+      }}
+      maxLength={name === "ifsc_code" ? 11 : undefined}
+      required
+    />
+  </div>
+))}
+
 
               {/* STATUS */}
               <div className="col-md-4">

@@ -4,6 +4,7 @@ import { getCategories } from "../../../services/category.service";
 import { getQuantity } from "../../../services/quantity.service";
 import { createProduct, updateProduct } from "../../../services/product.service";
 import { toast } from "react-toastify";
+import './product.css'
 
 export const AddProduct = ({ show, onClose, onSuccess, editData }) => {
   /* ================= MASTER DATA ================= */
@@ -27,11 +28,7 @@ export const AddProduct = ({ show, onClose, onSuccess, editData }) => {
 
     const loadData = async () => {
       try {
-        const [b, c, q] = await Promise.all([
-          getBrands(),
-          getCategories(),
-          getQuantity(),
-        ]);
+        const [b, c, q] = await Promise.all([getBrands(), getCategories(), getQuantity()]);
 
         setBrands(b);
         setCategories(c);
@@ -59,30 +56,15 @@ export const AddProduct = ({ show, onClose, onSuccess, editData }) => {
 
   /* ================= PREFILL (EDIT MODE) ================= */
   useEffect(() => {
-    if (
-      !editData ||
-      !brands.length ||
-      !categories.length ||
-      !allQuantities.length
-    )
-      return;
+    if (!editData || !brands.length || !categories.length || !allQuantities.length) return;
 
     const brand = brands.find((b) => b.name === editData.brand_name);
     if (!brand) return;
 
-    const category = categories.find(
-      (c) =>
-        c.name === editData.category_name &&
-        c.brand_id === brand.id
-    );
+    const category = categories.find((c) => c.name === editData.category_name && c.brand_id === brand.id);
     if (!category) return;
 
-    const qty = allQuantities.find(
-      (q) =>
-        q.name === editData.quantity_name &&
-        q.brand_id === brand.id &&
-        q.category_id === category.id
-    );
+    const qty = allQuantities.find((q) => q.name === editData.quantity_name && q.brand_id === brand.id && q.category_id === category.id);
 
     setProductName(editData.product_name);
     setPrice(String(editData.price));
@@ -113,9 +95,7 @@ export const AddProduct = ({ show, onClose, onSuccess, editData }) => {
 
     const [brandId, categoryId] = brandCategory.split("-").map(Number);
 
-    const filtered = allQuantities.filter(
-      (q) => q.brand_id === brandId && q.category_id === categoryId
-    );
+    const filtered = allQuantities.filter((q) => q.brand_id === brandId && q.category_id === categoryId);
 
     setFilteredQuantities(filtered);
 
@@ -154,52 +134,47 @@ export const AddProduct = ({ show, onClose, onSuccess, editData }) => {
 
   /* ================= SUBMIT ================= */
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  if (!validate()) return;
+    e.preventDefault();
+    if (!validate()) return;
 
-  const [brandId, categoryId] = brandCategory.split("-").map(Number);
+    const [brandId, categoryId] = brandCategory.split("-").map(Number);
 
-  const selectedBrand = brands.find((b) => b.id === brandId);
-  const selectedCategory = categories.find(
-    (c) => c.id === categoryId && c.brand_id === brandId
-  );
-  const selectedQuantity = allQuantities.find(
-    (q) => q.id === Number(quantity)
-  );
+    const selectedBrand = brands.find((b) => b.id === brandId);
+    const selectedCategory = categories.find((c) => c.id === categoryId && c.brand_id === brandId);
+    const selectedQuantity = allQuantities.find((q) => q.id === Number(quantity));
 
-  if (!selectedBrand || !selectedCategory || !selectedQuantity) {
-    toast.error("Invalid selection ❌");
-    return;
-  }
-
-  /* ✅ SEND NAMES ONLY */
-  const payload = {
-    product_name: productName.trim(),
-
-    brand: selectedBrand.name,        // ✅ VARCHAR
-    category: selectedCategory.name,  // ✅ VARCHAR
-    quantity: selectedQuantity.name,  // ✅ VARCHAR
-
-    price: Number(price),
-  };
-
-  try {
-    if (editData) {
-      await updateProduct(editData.id, payload);
-      toast.success("Product updated successfully ✅");
-    } else {
-      await createProduct(payload);
-      toast.success("Product added successfully ");
+    if (!selectedBrand || !selectedCategory || !selectedQuantity) {
+      toast.error("Invalid selection ❌");
+      return;
     }
 
-    onSuccess?.();
-    onClose();
-  } catch (err) {
-    console.error("Save failed", err.response?.data || err.message);
-    toast.error(err.response?.data?.message || "Failed to save product ❌");
-  }
-};
+    /* ✅ SEND NAMES ONLY */
+    const payload = {
+      product_name: productName.trim(),
 
+      brand: selectedBrand.name, // ✅ VARCHAR
+      category: selectedCategory.name, // ✅ VARCHAR
+      quantity: selectedQuantity.name, // ✅ VARCHAR
+
+      price: Number(price),
+    };
+
+    try {
+      if (editData) {
+        await updateProduct(editData.id, payload);
+        toast.success("Product updated successfully ✅");
+      } else {
+        await createProduct(payload);
+        toast.success("Product added successfully ");
+      }
+
+      onSuccess?.();
+      onClose();
+    } catch (err) {
+      console.error("Save failed", err.response?.data || err.message);
+      toast.error(err.response?.data?.message || "Failed to save product ❌");
+    }
+  };
 
   /* ================= RENDER ================= */
   if (!show) return null;
@@ -211,109 +186,77 @@ export const AddProduct = ({ show, onClose, onSuccess, editData }) => {
           <div className="modal-content">
             {/* HEADER */}
             <div className="modal-header">
-              <h5 className="modal-title">
-                {editData ? "Update Product" : "Add Product"}
-              </h5>
+              <h5 className="modal-title">{editData ? "Update Product" : "Add Product"}</h5>
               <button className="btn-close" onClick={onClose}></button>
             </div>
 
             {/* BODY */}
             <form onSubmit={handleSubmit}>
               <div className="modal-body">
-                <div className="row g-3">
-                  <div className="col-md-6">
-                    <label className="form-label">Product Name</label>
-                    <input
-                      className={`form-control ${
-                        errors.productName ? "is-invalid" : ""
-                      }`}
-                      value={productName}
-                      onChange={(e) => setProductName(e.target.value)}
-                    />
-                    {errors.productName && (
-                      <div className="invalid-feedback">
-                        {errors.productName}
+                <div className="modal_form">
+                  <div className="modal_content">
+                    <div className="row g-3">
+                      <div className="col-md-6">
+                        <label className="form-label">Product Name</label>
+                        <input
+                          className={`form-control ${errors.productName ? "is-invalid" : ""}`}
+                          value={productName}
+                          onChange={(e) => setProductName(e.target.value)}
+                        />
+                        {errors.productName && <div className="invalid-feedback">{errors.productName}</div>}
                       </div>
-                    )}
-                  </div>
 
-                  <div className="col-md-6">
-                    <label className="form-label">Brand - Category</label>
-                    <select
-                      className={`form-select ${
-                        errors.brandCategory ? "is-invalid" : ""
-                      }`}
-                      value={brandCategory}
-                      onChange={(e) => setBrandCategory(e.target.value)}
-                    >
-                      <option value="">Select</option>
-                      {brandCategoryOptions.map((bc) => (
-                        <option key={bc.value} value={bc.value}>
-                          {bc.label}
-                        </option>
-                      ))}
-                    </select>
-                    {errors.brandCategory && (
-                      <div className="invalid-feedback">
-                        {errors.brandCategory}
+                      <div className="col-md-6">
+                        <label className="form-label">Brand - Category</label>
+                        <select
+                          className={`form-select ${errors.brandCategory ? "is-invalid" : ""}`}
+                          value={brandCategory}
+                          onChange={(e) => setBrandCategory(e.target.value)}>
+                          <option value="">Select</option>
+                          {brandCategoryOptions.map((bc) => (
+                            <option key={bc.value} value={bc.value}>
+                              {bc.label}
+                            </option>
+                          ))}
+                        </select>
+                        {errors.brandCategory && <div className="invalid-feedback">{errors.brandCategory}</div>}
                       </div>
-                    )}
-                  </div>
 
-                  <div className="col-md-6">
-                    <label className="form-label">Quantity</label>
-                    <select
-                      className={`form-select ${
-                        errors.quantity ? "is-invalid" : ""
-                      }`}
-                      value={quantity}
-                      disabled={!brandCategory}
-                      onChange={(e) => setQuantity(e.target.value)}
-                    >
-                      <option value="">
-                        {brandCategory
-                          ? "Select Quantity"
-                          : "Select Brand-Category first"}
-                      </option>
-                      {filteredQuantities.map((q) => (
-                        <option key={q.id} value={q.id}>
-                          {q.name}
-                        </option>
-                      ))}
-                    </select>
-                    {errors.quantity && (
-                      <div className="invalid-feedback">
-                        {errors.quantity}
+                      <div className="col-md-6">
+                        <label className="form-label">Quantity</label>
+                        <select
+                          className={`form-select ${errors.quantity ? "is-invalid" : ""}`}
+                          value={quantity}
+                          disabled={!brandCategory}
+                          onChange={(e) => setQuantity(e.target.value)}>
+                          <option value="">{brandCategory ? "Select Quantity" : "Select Brand-Category first"}</option>
+                          {filteredQuantities.map((q) => (
+                            <option key={q.id} value={q.id}>
+                              {q.name}
+                            </option>
+                          ))}
+                        </select>
+                        {errors.quantity && <div className="invalid-feedback">{errors.quantity}</div>}
                       </div>
-                    )}
-                  </div>
 
-                  <div className="col-md-6">
-                    <label className="form-label">Price</label>
-                    <input
-                      type="number"
-                      className={`form-control ${
-                        errors.price ? "is-invalid" : ""
-                      }`}
-                      value={price}
-                      onChange={(e) => setPrice(e.target.value)}
-                    />
-                    {errors.price && (
-                      <div className="invalid-feedback">
-                        {errors.price}
+                      <div className="col-md-6">
+                        <label className="form-label">Price</label>
+                        <input
+                          type="number"
+                          className={`form-control ${errors.price ? "is-invalid" : ""}`}
+                          value={price}
+                          onChange={(e) => setPrice(e.target.value)}
+                        />
+                        {errors.price && <div className="invalid-feedback">{errors.price}</div>}
                       </div>
-                    )}
+                    </div>
                   </div>
                 </div>
               </div>
 
               {/* FOOTER */}
               <div className="modal-footer">
-                <button
-                  type="button"
-                  className="btn btn-secondary btn-sm"
-                  onClick={onClose}
-                >
+                <button type="button" className="btn filter-btn" onClick={onClose}>
                   Cancel
                 </button>
                 <button type="submit" className="btn main-btn">

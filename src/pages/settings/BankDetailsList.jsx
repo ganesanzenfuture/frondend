@@ -59,8 +59,8 @@ export const BankDetailsList = () => {
       {/* LIST */}
       {banks.map((bank) => (
         <div className="col-lg-10" key={bank.id}>
-          <div className="bank-details-card p-3 shadow-sm rounded">
-            <div className="row gy-3 align-items-center">
+          <div className="bank-details-card ">
+            <div className="row gy-3 ">
               {/* QR IMAGE */}
               <div className="col-md-3 text-center">
                 {bank.qr_code_image ? (
@@ -98,7 +98,7 @@ export const BankDetailsList = () => {
               {/* ACTION ICONS */}
               <div className="col-md-2 text-end">
                 <button
-                  className="btn btn-sm btn-outline-primary me-2"
+                  className="btn btn-sm btn-outline-warning me-2"
                   title="Edit"
                   onClick={() => navigate(`edit-bank/${bank.id}`)}
                 >

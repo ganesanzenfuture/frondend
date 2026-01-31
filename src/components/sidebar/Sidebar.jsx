@@ -140,10 +140,10 @@ export const Sidebar = () => {
 
                 {openSub === "products" && (
                   <ul className="submenu submenu_list pd-l25">
-                    <li><Link to="/products">Add Product</Link></li>
-                    <li><Link to="/products/add-brand">Brand</Link></li>
-                    <li><Link to="/products/add-categorey">Category</Link></li>
-                    <li><Link to="/products/add-quantity">Quantity</Link></li>
+                    <li><Link to="/products"><span className="submenu_icon"><i class="fi fi-tr-boxes"></i></span><span className="submenu_text">Add Product</span></Link></li>
+                    <li><Link to="/products/add-brand"><span className="submenu_icon"><i class="fi fi-tr-brand-badge"></i></span><span className="submenu_text">Brand</span></Link></li>
+                    <li><Link to="/products/add-categorey"><span className="submenu_icon"><i class="fi fi-tr-brand"></i></span><span className="submenu_text">Category</span></Link></li>
+                    <li><Link to="/products/add-quantity"><span className="submenu_icon"><i class="fi fi-tr-supplier-alt"></i></span><span className="submenu_text">Quantity</span></Link></li>
                   </ul>
                 )}
               </li>
@@ -274,9 +274,9 @@ export const Sidebar = () => {
 
                 {openSub === "report" && (
                   <ul className="submenu submenu_list pd-l25">
-                    <li><Link to="/report/daily">Customer Billing Reports</Link></li>
-                    <li><Link to="/report/weekly">Product Wise Report</Link></li>
-                    <li><Link to="/report/monthly">Daliy Sales Report</Link></li>
+                    <li><Link to="/report/daily"><span className="sumenu_icon"><i class="fi fi-tr-users"></i></span><span className="submneu_text">Customer Billing Reports</span></Link></li>
+                    <li><Link to="/report/weekly"><span className="submenu_icon"><i class="fi fi-tr-box-open"></i></span><span className="submenu_text">Product Wise Report</span></Link></li>
+                    <li><Link to="/report/monthly"><span className="submenu_icon"><i class="fi fi-tr-daily-calendar"></i></span><span className="submenu_text">Daliy Sales Report</span></Link></li>
                   </ul>
                 )}
               </li>

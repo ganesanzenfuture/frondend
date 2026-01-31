@@ -22,7 +22,7 @@
 }
 
 .header .header-bottom .left {
-  width: 12%;
+  width: 15%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -34,7 +34,7 @@
 }
 
 .header .header-bottom .center {
-  width: 76%;
+  width: 70%;
 }
 
 .header .header-bottom .center .center-top {
@@ -64,7 +64,7 @@
 }
 
 .header .header-bottom .right {
-  width: 12%;
+  width: 15%;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -204,9 +204,11 @@
 }
 
 .invoice-table td:last-child {
-  border-right: none;
+  border-right: none !important;
 }
-
+.border-none{
+  border-top: none !important;
+}
 .text-left {
   text-align: left;
 }

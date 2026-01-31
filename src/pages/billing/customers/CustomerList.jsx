@@ -13,7 +13,7 @@ export const CustomerList = () => {
         <div className="mb-4">
           <div className="row gy-3 align-items-center">
             <div className="col-lg-12">
-              <div className="d-flex justify-content-end gap-3 align-items-center">
+              <div className="d-flex justify-content-end gap-3 align-items-center flex-wrap">
 
                 {/* ✅ SEARCH */}
                 <div className="search-box">

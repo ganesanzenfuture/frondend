@@ -184,7 +184,7 @@ const inputClass = (name) =>
   return (
     <div className="row gy-3">
       <div className="col-lg-12">
-        <div className="form_element">
+        <div className="modal_form">
           <div className="form_title">
          <h5 className="title">
             {editData ? "Edit Employee" : "Add Employee"}

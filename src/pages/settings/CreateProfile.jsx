@@ -69,6 +69,15 @@ const UsersPage = () => {
   /* ================= SUBMIT ================= */
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // ✅ EMAIL VALIDATION
+const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/;
+
+if (formData.email && !emailRegex.test(formData.email)) {
+  toast.error("Invalid Email Address");
+  return;
+}
+
     try {
       if (isEdit) {
         await updateUser(editId, formData);
@@ -138,21 +147,25 @@ const UsersPage = () => {
                   <td>{u.username}</td>
                   <td>{u.email || "-"}</td>
                   <td className="d-flex gap-3">
-                    <Pencil
+                   <div className="btn btn-sm btn-warning">
+                     <Pencil
                       size={18}
-                      className={`icon-btn edit-icon ${
+                      className={`icon-btn edit-icon  ${
                         isSelf ? "disabled-icon" : ""
                       }`}
                       onClick={() => openEditModal(u)}
                     />
+                   </div>
 
-                    <Trash2
+                    <div className="btn btn-sm btn-danger">
+                      <Trash2
                       size={18}
-                      className={`icon-btn delete-icon ${
+                      className={`icon-btn  ${
                         isSelf ? "disabled-icon" : ""
                       }`}
                       onClick={() => handleDelete(u.id)}
                     />
+                    </div>
                   </td>
                 </tr>
               );

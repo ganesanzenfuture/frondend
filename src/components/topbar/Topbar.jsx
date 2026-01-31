@@ -24,7 +24,7 @@ export const Topbar = () => {
   return (
     <div className="topbar">
       <div className="topbar-left d-flex gap-lg-5 gap-2 align-items-center">
-        <button className="toggle_btn mobile_only" onClick={toggleSidebar}>
+        <button className="main-btn mobile_only" onClick={toggleSidebar}>
           <i className="bi bi-list"></i>
         </button>
 

@@ -107,7 +107,7 @@ export const AddCategorey = () => {
     <>
       <div className="row gy-4">
         {/* ================= FORM ================= */}
-        <div className="col-lg-10">
+        <div className="col-lg-12">
           <div className="form_element">
             <div className="form_title">
               <h5 className="title">Add Category</h5>
@@ -149,7 +149,7 @@ export const AddCategorey = () => {
                   )}
                 </div>
 
-                <div className="col-md-3">
+                <div className="col-md-4 text-lg-end">
                   <button
                     className="btn main-btn"
                     disabled={!brand || !categoryName.trim()}
@@ -163,7 +163,7 @@ export const AddCategorey = () => {
         </div>
 
         {/* ================= TABLE ================= */}
-        <div className="col-lg-10">
+        <div className="col-lg-12">
           <div className="common-table-wrapper">
             <table className="common-table table-striped">
               <thead>

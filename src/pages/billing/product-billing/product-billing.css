@@ -75,6 +75,11 @@
   color: #444;
   outline: none !important;
 }
+.product-list-box .form-control-sm,
+.product-list-box .form-select-sm {
+  padding: 8px 10px !important;
+  font-size: 12px !important;
+}
 .product-list-box .form-control,
 .product-list-box .form-select::placeholder {
   color: #444;
