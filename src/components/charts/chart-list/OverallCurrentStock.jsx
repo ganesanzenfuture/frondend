@@ -10,12 +10,22 @@ const OverallCurrentStock = () => {
     const loadOverallStock = async () => {
       const products = await getProducts();
 
-      const stockData = (products || [])
-        .map((p) => ({
-          label: `${p.product_name || p.name} (${p.product_category || "Uncategorized"})`,
-          qty: Number(p.stock ?? p.current_stock ?? p.available_qty ?? 0),
-        }))
-        .filter((p) => p.qty > 0);
+    const stockData = (products || [])
+  .map((p) => {
+    const category =
+      p.product_category ||
+      p.category_name ||
+      p.category?.name ||
+      p.category ||
+      "Uncategorized";
+
+    return {
+      label: `${p.product_name || p.name} (${category})`,
+      qty: Number(p.stock ?? p.current_stock ?? p.available_qty ?? 0),
+    };
+  })
+  .filter((p) => p.qty > 0);
+
 
       setLabels(stockData.map((p) => p.label));
       setSeries(stockData.map((p) => p.qty));

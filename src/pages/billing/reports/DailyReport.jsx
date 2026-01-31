@@ -126,6 +126,36 @@ const [password, setPassword] = useState("");
     alert("❌ Wrong password");
   }
 };
+const handleConfirm = async () => {
+  if (!password || !activeAction) return;
+
+  try {
+    if (activeAction.type === "edit") {
+      setShowPasswordModal(false);
+
+      // ✅ FIXED PATH
+      navigate(`/product-billing/${activeAction.id}`);
+    }
+
+    if (activeAction.type === "delete") {
+      await api.delete(`/customer-billing/${activeAction.id}`, {
+        data: { password },
+      });
+
+      setRows(prev =>
+        prev.filter(r => r.id !== activeAction.id)
+      );
+
+      setShowPasswordModal(false);
+    }
+  } catch (err) {
+    alert(err.response?.data?.message || "Wrong admin password");
+  } finally {
+    setPassword("");
+    setActiveAction(null);
+  }
+};
+
 
 
     if (loading) return <p>Loading billing reports...</p>;
@@ -243,23 +273,37 @@ const [password, setPassword] = useState("");
                           </button>
 
 
-
-                          {/* ✏️ EDIT */}
+{/* 
+                          ✏️ EDIT
                                 <button
                                     className="btn btn-sm btn-warning"
                                     title="Edit"
-                                    onClick={() => {
+                                      onClick={() => {
                                       setActiveAction({ id: r.id, type: "edit" });
-                                      setUnlockedRowId(null);
+                                      setShowPasswordModal(true);   // 👈 REQUIRED
+                                      setPassword("");
+                                    }}
+
+                                  >
+                                    <i className="bi bi-pencil"></i>
+                                  </button> */}
+
+                        {/* 🗑 DELETE
+                                 <button
+                                    className="btn btn-sm btn-danger"
+                                    title="Delete"
+                                    onClick={() => {
+                                      setActiveAction({ id: r.id, type: "delete" });
+                                      setShowPasswordModal(true);
                                       setPassword("");
                                     }}
                                   >
-                                    <i className="bi bi-pencil"></i>
-                                  </button>
+                                    <i className="bi bi-trash"></i>
+                                  </button> */}
 
 
                       {/* 🔑 PASSWORD BOX */}
-                                    {activeAction?.id === r.id && unlockedRowId !== r.id && (
+                                    {/* {activeAction?.id === r.id && unlockedRowId !== r.id && (
                                       <div
                                         className="p-2 border rounded shadow-sm bg-white"
                                         style={{
@@ -291,9 +335,53 @@ const [password, setPassword] = useState("");
                                           🔓 Unlock
                                         </button>
                                       </div>
-                                    )}
+                                    )} */}
+{showPasswordModal && (
+  <div style={{
+    position: "fixed",
+    inset: 0,
+    background: "rgba(0,0,0,0.5)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 9999
+  }}>
+    <div style={{
+      background: "#fff",
+      padding: "20px",
+      width: "300px",
+      borderRadius: "8px"
+    }}>
+      <h5>Admin Password</h5>
 
-                                {/* ✅ CONFIRM BUTTON */}
+      <input
+        type="password"
+        className="form-control mt-2"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+
+      <div className="d-flex justify-content-end gap-2 mt-3">
+        <button
+          className="btn btn-secondary"
+          onClick={() => setShowPasswordModal(false)}
+        >
+          Cancel
+        </button>
+
+        <button
+          className="btn btn-primary"
+          onClick={handleConfirm}
+        >
+          Confirm
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+
+                                {/* ✅ CONFIRM BUTTON
                           {unlockedRowId === r.id && (
                             <div
                               className="p-2 border rounded bg-light text-center"
@@ -316,7 +404,7 @@ const [password, setPassword] = useState("");
                                 ✅ Confirm
                               </button>
                             </div>
-                          )}
+                          )} */}
 
                         </div>
                       </td>
@@ -371,6 +459,57 @@ const [password, setPassword] = useState("");
           </div>
 
         </div>
+        {/* ===== PASSWORD MODAL (GLOBAL – OUTSIDE MAP) ===== */}
+{showPasswordModal && activeAction && (
+  <div
+    style={{
+      position: "fixed",
+      inset: 0,
+      background: "rgba(0,0,0,0.5)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      zIndex: 9999,
+    }}
+  >
+    <div
+      style={{
+        background: "#fff",
+        padding: "20px",
+        width: "300px",
+        borderRadius: "8px",
+      }}
+    >
+      <h5>Admin Password</h5>
+
+      <input
+        type="password"
+        className="form-control mt-2"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        autoFocus
+      />
+
+      <div className="d-flex justify-content-end gap-2 mt-3">
+        <button
+          className="btn btn-secondary"
+          onClick={() => {
+            setShowPasswordModal(false);
+            setActiveAction(null);
+            setPassword("");
+          }}
+        >
+          Cancel
+        </button>
+
+        <button className="btn btn-primary" onClick={handleConfirm}>
+          Confirm
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
       </div>
     );
   };

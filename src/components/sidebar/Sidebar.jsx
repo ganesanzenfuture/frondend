@@ -276,7 +276,7 @@ export const Sidebar = () => {
                   <ul className="submenu submenu_list pd-l25">
                     <li><Link to="/report/daily">Customer Billing Reports</Link></li>
                     <li><Link to="/report/weekly">Product Wise Report</Link></li>
-                    {/* <li><Link to="/report/monthly">Monthly</Link></li> */}
+                    <li><Link to="/report/monthly">Daliy Sales Report</Link></li>
                   </ul>
                 )}
               </li>

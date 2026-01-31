@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from "react";
 import "./product-billing.css";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import { getCustomers, createCustomer } from "../../../services/customer.service";
 import { getEmployees, createEmployee } from "../../../services/employee.service";
 import { getProducts } from "../../../services/product.service";
 import { createCustomerBilling } from "../../../services/customerBilling.service";
 import { getAllBankDetails } from "../../../services/bankDetalis.service";
-import api from "../../../services/api";
-import { toast } from "react-toastify"; // ✅ ADD THIS
 import { getCompanyDetails } from "../../../services/companyDetails.service";
+
+import api from "../../../services/api";
+import { toast } from "react-toastify";
 
 export const ProductBilling = () => {
   const { id } = useParams();   // 👈 this defines id
@@ -52,7 +53,7 @@ export const ProductBilling = () => {
   const [company, setCompany] = useState(null);
 
 useEffect(() => {
-  if (!id) return; // CREATE mode
+  if (!id) return;
 
   const loadBillingForEdit = async () => {
     try {
@@ -60,47 +61,56 @@ useEffect(() => {
       const data = res.data;
 
       // 🟦 CUSTOMER
-      setCustomerName(data.customer_name);
-      setCustomerPhone(data.phone_number);
+      setCustomerName(data.customer_name || "");
+      setCustomerPhone(data.phone_number || "");
       setCustomerAddress(data.address || "");
-      setSelectedCustomerId(data.customer_id);
+      setSelectedCustomerId(data.customer_id || null);
 
       // 🟦 STAFF
-      setStaffName(data.staff_name);
-      setStaffPhone(data.staff_phone);
+      setStaffName(data.staff_name || "");
+      setStaffPhone(data.staff_phone || "");
+      setSelectedEmployeeId(data.staff_id || null);
 
-      // 🟦 TAX & PAYMENT
+      // 🟦 BANK & PAYMENT
+      setSelectedBankId(Number(data.bank_id) || null);
+      setAdvancePaid(Number(data.advance_paid) || 0);
+      setCashAmount(Number(data.cash_amount) || 0);
+      setUpiAmount(Number(data.upi_amount) || 0);
+
+      // 🔁 auto payment mode
+      if (data.upi_amount > 0) setPaymentMode("upi");
+      else setPaymentMode("cash");
+
+      // 🟦 GST
       setGstNumber(data.gst_number || "");
-      setGstPercent(data.tax_gst_percent || 0);
-      setAdvancePaid(data.advance_paid || 0);
-      setCashAmount(data.cash_amount || 0);
-      setUpiAmount(data.upi_amount || 0);
-      setSelectedBankId(data.bank_id);
+      setGstPercent(Number(data.tax_gst_percent) || 0);
 
-      // 🟦 PRODUCTS (MOST IMPORTANT PART)
- const mappedProducts = data.products.map((p) => ({
-  product_id: p.product_id,
-  product_name: p.product_name,
-  brand: p.product_brand,
-  category: p.product_category,
+      // 🟦 INVOICE NO (IMPORTANT)
+      setInvoicePreview(data.invoice_number);
 
-  product_quantity: p.product_quantity, // ✅ STRING (ex: "25 Kg")
-  sell_qty: Number(p.quantity),          // ✅ NUMBER
-
-  rate: Number(p.rate),
-  stock: 9999,
-}));
+      // 🟦 PRODUCTS
+      const mappedProducts = data.products.map(p => ({
+        product_id: p.product_id,
+        product_name: p.product_name,
+        brand: p.product_brand,
+        category: p.product_category,
+        product_quantity: p.product_quantity,
+        sell_qty: Number(p.quantity),
+        rate: Number(p.rate),
+        stock: "-", // ❌ don’t touch stock on edit
+      }));
 
       setBillProducts(mappedProducts);
 
     } catch (err) {
       console.error("Failed to load billing for edit", err);
-      alert("Failed to load billing data");
+      toast.error("Failed to load billing data");
     }
   };
 
   loadBillingForEdit();
 }, [id]);
+
   /* ================= LOAD DATA ================= */
 useEffect(() => {
   const loadData = async () => {
@@ -368,6 +378,16 @@ const handleSaveBilling = async () => {
     toast.warn("Please select bank details");
     return;
   }
+  if (advancePaid > grandTotal) {
+  toast.error("Advance paid cannot exceed Grand Total");
+  return;
+}
+
+if (cashAmount + upiAmount !== advancePaid) {
+  toast.error("Cash + UPI must exactly match Advance Paid");
+  return;
+}
+
 
   try {
     const customer_id = await ensureCustomerExists();
@@ -420,13 +440,58 @@ const handleSaveBilling = async () => {
     toast.error(err.response?.data?.message || "Invoice save failed");
   }
 };
+const resetBillingPage = () => {
+  // customer
+  setCustomerName("");
+  setCustomerPhone("");
+  setGstNumber("");
 
- /* ================= SAVE DRAFT ================= */
+  // staff
+  setStaffName("");
+  setStaffPhone("");
+
+  // payment
+  setAdvancePaid(0);
+  setCashAmount(0);
+  setUpiAmount(0);
+  setSelectedBankId(null);
+
+  // products
+  setBillProducts([]);
+
+  setGstPercent(
+  data.tax_gst_percent !== null
+    ? Number(data.tax_gst_percent)
+    : 0
+);
+
+  // navigate to clean page (this resets edit mode automatically)
+  navigate("/product-billing", { replace: true });
+};
+
+
+const getCurrentTime = () => {
+  const now = new Date();
+  return now.toLocaleTimeString("en-GB", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
+
 const handleSaveDraft = async () => {
   if (!billProducts.length) {
     toast.warn("Add at least one product before saving draft");
     return;
   }
+  if (advancePaid > grandTotal) {
+  toast.error("Advance paid cannot exceed Grand Total");
+  return;
+}
+
+if (cashAmount + upiAmount !== advancePaid) {
+  toast.error("Cash + UPI must exactly match Advance Paid");
+  return;
+}
 
   try {
     const customer_id = await ensureCustomerExists();
@@ -467,13 +532,14 @@ const handleSaveDraft = async () => {
 
     toast.success("Draft saved successfully");
 
-    // 👉 RESET TO EMPTY BILLING PAGE
-    navigate("/product-billing", { replace: true });
+    // ✅ RESET BILLING PAGE STATE (IMPORTANT PART)
+    resetBillingPage();
 
   } catch (err) {
     toast.error(err.response?.data?.message || "Failed to save draft");
   }
 };
+
 
 const handleDiscard = () => {
   setCustomerName("");
@@ -504,6 +570,14 @@ useEffect(() => {
     setCompany(res);
   });
 }, []);
+useEffect(() => {
+  if (!isEdit || !selectedCustomerId || !customers.length) return;
+
+  const customer = customers.find(c => c.id === selectedCustomerId);
+  if (customer) {
+    setCustomerAddress(customer.address || "");
+  }
+}, [customers, selectedCustomerId, isEdit]);
 
   return (
     <div className="product-billing">
@@ -590,29 +664,34 @@ useEffect(() => {
                         {/* CUSTOMER NAME */}
                         <div className="col-md-6 position-relative">
                           <label className="form-label">Customer Name</label>
-                          <input
-                            className="form-control"
-                            value={customerName}
-                            onChange={(e) => {
-                              const v = e.target.value;
-                              setCustomerName(v);
-                              setSelectedCustomerId(null);
+                         <input
+                                    className="form-control"
+                                    value={customerName}
+                                    onChange={(e) => {
+                                      const v = e.target.value;
+                                      setCustomerName(v);
+                                      setSelectedCustomerId(null);
 
-                              if (!v) {
-                                setCustomerSuggestions([]);
-                                return;
-                              }
+                                      if (!v) {
+                                        setCustomerSuggestions([]);
+                                        return;
+                                      }
 
-                              setCustomerSuggestions(
-                                customers.filter(
-                                  (c) =>
-                                    (c.name || "").toLowerCase().includes(v.toLowerCase()) ||
-                                    (c.phone || "").includes(v)
-                                )
-                              );
-                            }}
-                             onBlur={() => setTimeout(() => setCustomerSuggestions([]), 150)}
-                          />
+                                      setCustomerSuggestions(
+                                        customers.filter(
+                                          (c) =>
+                                            (c.name || "").toLowerCase().includes(v.toLowerCase()) ||
+                                            (c.phone || "").includes(v)
+                                        )
+                                      );
+                                    }}
+                                    onFocus={() => {
+                                      if (customerName) {
+                                        setCustomerSuggestions(customers);
+                                      }
+                                    }}
+                                  />
+
 
                           {customerSuggestions.length > 0 && (
                             <ul className="list-group position-absolute w-100 z-3">
@@ -751,7 +830,8 @@ useEffect(() => {
 
                               <td>{p.sell_qty}</td>
 
-                                <td>{p.stock}</td>
+                              <td>{isEdit ? "-" : p.stock}</td>
+
                             <td>
                               <button
                                 className="btn btn-sm btn-danger"
@@ -967,18 +1047,28 @@ useEffect(() => {
  <div className="row payment-values">
   <div className="col-6">
     <div className="label">Advance Paid</div>
-    <input
-      type="number"
-      className="form-control"
-      value={advancePaid}
-      onWheel={(e) => e.target.blur()}
-      onChange={(e) => {
-        const val = Number(e.target.value) || 0;
-        setAdvancePaid(val);
-        setCashAmount(0);
-        setUpiAmount(0);
-      }}
-    />
+   <input
+  type="number"
+  className="form-control"
+  value={advancePaid}
+  onWheel={(e) => e.target.blur()}
+  onChange={(e) => {
+    let val = Number(e.target.value) || 0;
+
+    // ❌ prevent paying more than bill
+    if (val > grandTotal) {
+      val = grandTotal;
+      toast.warn("Advance adjusted to Grand Total");
+    }
+
+    setAdvancePaid(val);
+
+    // default full amount to cash (can change later)
+    setCashAmount(val);
+    setUpiAmount(0);
+  }}
+/>
+
   </div>
 
   <div className="col-6">

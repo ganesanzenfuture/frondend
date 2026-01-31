@@ -25,18 +25,26 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Handle only AUTH errors
-    if (error.response && error.response.status === 401) {
+    const status = error.response?.status;
+    const message = error.response?.data?.message;
+
+    // 🔐 Redirect ONLY if token is invalid / expired
+    if (
+      status === 401 &&
+      (
+        message === "Invalid token" ||
+        message === "Token expired" ||
+        message === "Unauthorized"
+      )
+    ) {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
 
-      // avoid infinite redirect loop
       if (window.location.pathname !== "/login") {
         window.location.href = "/login";
       }
     }
 
-    // IMPORTANT: always reject so service can catch it
     return Promise.reject(error);
   }
 );

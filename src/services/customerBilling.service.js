@@ -63,3 +63,14 @@ export const getProductWiseReport = async () => {
   const res = await api.get("/customer-billing/products");
   return Array.isArray(res.data) ? res.data : [];
 };
+export const updateCustomerBilling = (id, data, password) => {
+  return api.put(`/customer-billing/${id}`, {
+    ...data,
+    password,
+  });
+};
+export const deleteCustomerBilling = (id, password) => {
+  return api.delete(`/customer-billing/${id}`, {
+    data: { password },
+  });
+};

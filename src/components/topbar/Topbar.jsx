@@ -39,10 +39,10 @@ export const Topbar = () => {
 
       <div className="topbar-right">
         <div className="topbar-icons">
-            <Link to="/notifications" className="icon-wrapper">
+            {/* <Link to="/notifications" className="icon-wrapper">
               <i className="bi bi-bell topbar-icon"></i>
               <span className="notification-badge">3</span>
-            </Link>
+            </Link> */}
 
             <div className="profile-section dropdown">
               <Link className="dropdown-toggle" data-bs-toggle="dropdown">

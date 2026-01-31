@@ -56,13 +56,16 @@ Modal.setAppElement("#root");
 /* ======================
    DASHBOARD LAYOUT
 ====================== */
+const loggedInUser = JSON.parse(localStorage.getItem("user"));
 const DashboardLayout = () => (
+  
   <>
     <Sidebar />
     <div className="dashboard_main">
       <Topbar />
       <div className="dashboard_container">
         <Routes>
+          <Route path="/product-billing/:id" element={<ProductBilling />} />
           <Route path="/product-billing" element={<ProductBilling />} />
          <Route path="billing" element={<ProductBilling />} />
           <Route path="dashboard" element={<Dashboard />} />
@@ -119,7 +122,15 @@ const DashboardLayout = () => (
               <Route path="add-bank" element={<AddBankDetails />} />
               <Route path="edit-bank/:id" element={<AddBankDetails />} />
             </Route>
-            <Route path="create-profile" element={<CreateProfile/>}/>
+           <Route
+              path="create-profile"
+              element={
+                loggedInUser?.role === "admin"
+                  ? <CreateProfile />
+                  : <Navigate to="/unauthorized" />
+              }
+            />
+
             <Route path="company-details" element={<CompanyDetails/>}/> 
           </Route>
           <Route path="notifications" element={<Notifications />} />
