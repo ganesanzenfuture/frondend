@@ -16,7 +16,7 @@ export const ProductBilling = () => {
   const { id } = useParams();   // 👈 this defines id
   const isEdit = Boolean(id);  // 👈 true when editing
 
-  const [paymentMode, setPaymentMode] = useState("cash");
+  // const [paymentMode, setPaymentMode] = useState("cash");
   
   /* ================= MASTER DATA ================= */
   const [customers, setCustomers] = useState([]);
@@ -41,7 +41,7 @@ export const ProductBilling = () => {
   const [billProducts, setBillProducts] = useState([]);
   const [sellQty, setSellQty] = useState("");
 
-  const [advancePaid, setAdvancePaid] = useState(0);
+  // const [advancePaid, setAdvancePaid] = useState(0);
   const [invoicePreview, setInvoicePreview] = useState("");
   const [gstNumber, setGstNumber] = useState("");
   const [gstPercent, setGstPercent] = useState(18);
@@ -51,6 +51,10 @@ export const ProductBilling = () => {
   const navigate = useNavigate();
   const [banks, setBanks] = useState([]);
   const [company, setCompany] = useState(null);
+  const [paymentMode, setPaymentMode] = useState("cash"); // UI only
+  const advancePaid = cashAmount + upiAmount;
+
+
 
 useEffect(() => {
   if (!id) return;
@@ -73,7 +77,7 @@ useEffect(() => {
 
       // 🟦 BANK & PAYMENT
       setSelectedBankId(Number(data.bank_id) || null);
-      setAdvancePaid(Number(data.advance_paid) || 0);
+      // setAdvancePaid(Number(data.advance_paid) || 0);
       setCashAmount(Number(data.cash_amount) || 0);
       setUpiAmount(Number(data.upi_amount) || 0);
 
@@ -355,38 +359,35 @@ const handleSaveBilling = async () => {
   }
 
   if (!/^\d{10}$/.test(customerPhone)) {
-    toast.error("Enter a valid 10-digit customer phone number");
+    toast.error("Enter valid customer phone");
     return;
   }
 
   if (!billProducts.length) {
-    toast.warn("Add at least one product to the bill");
-    return;
-  }
-
-  if (cashAmount + upiAmount !== advancePaid) {
-    toast.error("Cash + UPI amount must equal Advance Paid");
-    return;
-  }
-
-  if (!/^\d{10}$/.test(staffPhone)) {
-    toast.error("Enter a valid 10-digit staff phone number");
+    toast.warn("Add at least one product");
     return;
   }
 
   if (!selectedBankId) {
-    toast.warn("Please select bank details");
+    toast.warn("Select bank details");
     return;
   }
-  if (advancePaid > grandTotal) {
-  toast.error("Advance paid cannot exceed Grand Total");
+
+ const totalPaid = Number(cashAmount) + Number(upiAmount);
+
+if (totalPaid < 0) {
+  toast.error("Invalid payment amount");
   return;
 }
 
-if (cashAmount + upiAmount !== advancePaid) {
-  toast.error("Cash + UPI must exactly match Advance Paid");
+// allow tiny floating difference
+if (totalPaid - grandTotal > 0.01) {
+  toast.error("Payment exceeds bill amount");
   return;
 }
+
+
+// ✅ FULL PAYMENT OR PARTIAL PAYMENT BOTH OK
 
 
   try {
@@ -405,15 +406,15 @@ if (cashAmount + upiAmount !== advancePaid) {
       bank_id: selectedBankId,
 
       tax_gst_percent: gstPercent,
-      advance_paid: Number(advancePaid),
-      cash_amount: Number(cashAmount),
-      upi_amount: Number(upiAmount),
+      advance_paid: advancePaid,
+      cash_amount: cashAmount,
+      upi_amount: upiAmount,
 
-      products: billProducts.map((p) => ({
+      products: billProducts.map(p => ({
         product_id: p.product_id,
-        quantity: Number(p.sell_qty),
+        quantity: p.sell_qty,
         product_quantity: p.product_quantity,
-        rate: Number(p.rate),
+        rate: p.rate,
       })),
     };
 
@@ -427,19 +428,14 @@ if (cashAmount + upiAmount !== advancePaid) {
     }
 
     toast.success("Invoice saved successfully");
-
-    // 👉 OPEN PRINT PAGE
     navigate(`/invoice/print/${billingId}`);
 
-    // 👉 AFTER PRINT → RESET BILLING PAGE
-    setTimeout(() => {
-      navigate("/product-billing", { replace: true });
-    }, 600);
-
   } catch (err) {
-    toast.error(err.response?.data?.message || "Invoice save failed");
+    toast.error("Invoice save failed");
   }
 };
+
+
 const resetBillingPage = () => {
   // customer
   setCustomerName("");
@@ -451,9 +447,8 @@ const resetBillingPage = () => {
   setStaffPhone("");
 
   // payment
-  setAdvancePaid(0);
-  setCashAmount(0);
-  setUpiAmount(0);
+  // setAdvancePaid(0);
+  
   setSelectedBankId(null);
 
   // products
@@ -483,15 +478,23 @@ const handleSaveDraft = async () => {
     toast.warn("Add at least one product before saving draft");
     return;
   }
-  if (advancePaid > grandTotal) {
-  toast.error("Advance paid cannot exceed Grand Total");
+const totalPaid = Number(cashAmount) + Number(upiAmount);
+
+if (totalPaid < 0) {
+  toast.error("Invalid payment amount");
   return;
 }
 
-if (cashAmount + upiAmount !== advancePaid) {
-  toast.error("Cash + UPI must exactly match Advance Paid");
+// allow tiny floating difference
+if (totalPaid - grandTotal > 0.01) {
+  toast.error("Payment exceeds bill amount");
   return;
 }
+
+
+// ✅ FULL PAYMENT OR PARTIAL PAYMENT BOTH OK
+
+
 
   try {
     const customer_id = await ensureCustomerExists();
@@ -555,9 +558,8 @@ const handleDiscard = () => {
   setSelectedProduct(null);
   setSellQty("");
 
-  setAdvancePaid(0);
-  setCashAmount(0);
-  setUpiAmount(0);
+  // setAdvancePaid(0);
+ 
   setGstNumber("");
   setGstPercent(18);
   setSelectedBankId(null);
@@ -779,9 +781,10 @@ useEffect(() => {
 
                     <div className="col-md-6">
                      <select className="form-select" disabled>
-                        <option>
-                          {selectedProduct ? `${selectedProduct.quantity} Kg` : "Qty"}
-                        </option>
+                       <option>
+                        {selectedProduct ? selectedProduct.quantity : "Qty"}
+                      </option>
+
                       </select>
 
                     </div>
@@ -1068,27 +1071,12 @@ useEffect(() => {
  <div className="row payment-values">
   <div className="col-6">
     <div className="label">Advance Paid</div>
-   <input
-  type="number"
+  <input
   className="form-control"
-  value={advancePaid}
-  onWheel={(e) => e.target.blur()}
-  onChange={(e) => {
-    let val = Number(e.target.value) || 0;
-
-    // ❌ prevent paying more than bill
-    if (val > grandTotal) {
-      val = grandTotal;
-      toast.warn("Advance adjusted to Grand Total");
-    }
-
-    setAdvancePaid(val);
-
-    // default full amount to cash (can change later)
-    setCashAmount(val);
-    setUpiAmount(0);
-  }}
+  value={`₹${advancePaid.toFixed(2)}`}
+  readOnly
 />
+
 
   </div>
 
@@ -1121,22 +1109,21 @@ useEffect(() => {
         <span>CASH</span>
       </div>
 
-      {/* 👇 CASH INPUT UNDER CASH CARD */}
-      {paymentMode === "cash" && advancePaid > 0 && (
-        <input
-          type="number"
-          className="form-control mt-2"
-          placeholder="Cash amount"
-          value={cashAmount}
-          onChange={(e) => {
-            const val = Number(e.target.value) || 0;
-            if (val <= advancePaid) {
-              setCashAmount(val);
-              setUpiAmount(advancePaid - val);
-            }
-          }}
-        />
-      )}
+ {paymentMode === "cash" && (
+  <input
+    type="number"
+    className="form-control mt-2"
+    placeholder="Cash amount"
+    min="0"
+    value={cashAmount}
+    disabled={isEdit}
+    onChange={(e) => {
+      const val = Number(e.target.value) || 0;
+      setCashAmount(val);
+    }}
+  />
+)}
+
     </div>
 
     {/* UPI */}
@@ -1152,21 +1139,23 @@ useEffect(() => {
       </div>
 
       {/* 👇 UPI INPUT UNDER UPI CARD */}
-      {paymentMode === "upi" && advancePaid > 0 && (
-        <input
-          type="number"
-          className="form-control mt-2"
-          placeholder="UPI amount"
-          value={upiAmount}
-          onChange={(e) => {
-            const val = Number(e.target.value) || 0;
-            if (val <= advancePaid) {
-              setUpiAmount(val);
-              setCashAmount(advancePaid - val);
-            }
-          }}
-        />
-      )}
+   {paymentMode === "upi" && (
+  <input
+    type="number"
+    className="form-control mt-2"
+    placeholder="UPI amount"
+    min="0"
+    value={upiAmount}
+    disabled={isEdit}
+    onChange={(e) => {
+      const val = Number(e.target.value) || 0;
+      setUpiAmount(val);
+    }}
+  />
+)}
+
+
+
     </div>
 
     {/* CARD */}
@@ -1187,9 +1176,19 @@ useEffect(() => {
 
 
     {/* Action */}
-    <button className="main-btn w-100 text-center d-block" onClick={handleSaveBilling}>
-      <i className="fi fi-tr-print me-2"></i>Save & Print
-    </button>
+    <button
+  className="main-btn w-100 text-center d-block"
+  onClick={handleSaveBilling}
+ disabled={
+  billProducts.length === 0 ||
+  (cashAmount + upiAmount - grandTotal) > 0.01
+}
+
+>
+  <i className="fi fi-tr-print me-2"></i>
+  Save & Print
+</button>
+
 
           <div className="invoice-footer">
           <button

@@ -5,7 +5,12 @@ import {
 } from "../../../services/customer.service";
 import "./customer.model.css";
 import { toast } from "react-toastify";
-export const AddCustomers = ({ closeModal, editData, refresh }) => {
+export const AddCustomers = ({
+  closeModal,
+  editData,
+  refresh = () => {}, // ✅ DEFAULT SAFE FUNCTION
+}) => {
+
   const [formData, setFormData] = useState({
     first_name: "",
     last_name: "",
@@ -31,31 +36,27 @@ export const AddCustomers = ({ closeModal, editData, refresh }) => {
   }, [editData]);
 
   /* ================= VALIDATION ================= */
-  const validate = () => {
-    const e = {};
+ const validate = () => {
+  const e = {};
 
-    if (!formData.first_name.trim()) {
-      e.first_name = "First name is required";
-    }
+  if (!formData.first_name.trim()) {
+    e.first_name = "First name is required";
+  }
 
-    if (!formData.last_name.trim()) {
-      e.last_name = "Last name is required";
-    }
+  if (!/^[6-9]\d{9}$/.test(formData.phone)) {
+    e.phone = "Enter valid 10-digit phone number";
+  }
 
-    if (!/^[6-9]\d{9}$/.test(formData.phone)) {
-      e.phone = "Enter valid 10-digit phone number";
-    }
+  if (
+    formData.email &&
+    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)
+  ) {
+    e.email = "Invalid email address";
+  }
 
-    if (
-      formData.email &&
-      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)
-    ) {
-      e.email = "Invalid email address";
-    }
-
-    setErrors(e);
-    return Object.keys(e).length === 0;
-  };
+  setErrors(e);
+  return Object.keys(e).length === 0;
+};
 
   /* ================= HANDLERS ================= */
   const handleChange = (e) => {
@@ -72,21 +73,106 @@ export const AddCustomers = ({ closeModal, editData, refresh }) => {
     setErrors({ ...errors, [name]: "" });
   };
 
-  const handleSubmit = async (e) => {
+
+// const handleSubmit = async (e) => {
+//   e.preventDefault();
+//   if (loading) return;
+//   if (!validate()) return;
+
+//   setLoading(true);
+
+//   try {
+//     let res;
+
+//     if (editData) {
+//       res = await updateCustomer(editData.id, formData);
+//       toast.success("Customer updated successfully");
+//     } else {
+//       res = await createCustomer(formData);
+//       toast.success("Customer added successfully");
+//     }
+
+//    const newCustomer = res.data.customer ?? res.data;
+// refresh(newCustomer);
+
+//     closeModal();
+
+//   } catch (err) {
+//     console.error(err);
+//     toast.error(
+//       err.response?.data?.message ||
+//       err.response?.data?.error ||
+//       "Customer creation failed"
+//     );
+//   } finally {
+//     setLoading(false);
+//   }
+// };
+
+// const handleSubmit = async (e) => {
+//   e.preventDefault();
+//   if (loading) return;
+//   if (!validate()) return;
+
+//   setLoading(true);
+
+//   try {
+//     let res;
+
+//     if (editData) {
+//       res = await updateCustomer(editData.id, formData);
+//       toast.success("Customer updated successfully");
+//     } else {
+//       res = await createCustomer(formData);
+//       toast.success("Customer added successfully");
+//     }
+
+//     const newCustomer = res.data.customer ?? res.data;
+
+//     refresh(newCustomer); // ✅ NOW TABLE UPDATES INSTANTLY
+//     closeModal();
+
+//   } catch (err) {
+//     console.error(err);
+//     toast.error(
+//       err.response?.data?.message ||
+//       err.response?.data?.error ||
+//       "Customer creation failed"
+//     );
+//   } finally {
+//     setLoading(false);
+//   }
+// };
+
+const handleSubmit = async (e) => {
   e.preventDefault();
-   if (loading) return;
+  if (loading) return;
   if (!validate()) return;
 
   setLoading(true);
 
   try {
+    let res;
+
     if (editData) {
-      await updateCustomer(editData.id, formData);
+      res = await updateCustomer(editData.id, formData);
       toast.success("Customer updated successfully");
     } else {
-      await createCustomer(formData);
+      res = await createCustomer(formData);
       toast.success("Customer added successfully");
     }
+
+    // ✅ NORMALIZE CUSTOMER OBJECT
+    const newCustomerRaw = res.data.customer ?? res.data;
+
+    const newCustomer = {
+      ...newCustomerRaw,
+      id: newCustomerRaw.id || newCustomerRaw._id, // 🔥 IMPORTANT
+    };
+
+    refresh(newCustomer); // ✅ INSTANT RENDER
+    closeModal();
+
   } catch (err) {
     console.error(err);
     toast.error(
@@ -94,14 +180,9 @@ export const AddCustomers = ({ closeModal, editData, refresh }) => {
       err.response?.data?.error ||
       "Customer creation failed"
     );
-    return; // 🔥 STOP HERE
   } finally {
     setLoading(false);
   }
-
-  // ✅ move these OUTSIDE try/catch
-  refresh(res.data);
-  closeModal();
 };
 
 
@@ -122,7 +203,8 @@ export const AddCustomers = ({ closeModal, editData, refresh }) => {
         </div>
 
         <div className="col-md-4">
-          <label>Last Name *</label>
+         <label>Last Name</label>
+
           <input
             name="last_name"
             value={formData.last_name}

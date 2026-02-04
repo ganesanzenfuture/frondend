@@ -5,7 +5,7 @@ import api from "./api";
  */
 export const createCustomer = async (data) => {
   const res = await api.post("/customers", data);
-  return res.data;
+  return res;
 };
 
 /**

@@ -13,18 +13,38 @@ export const CustomerTable = ({ search, showActions = true }) => {
   const [editData, setEditData] = useState(null);
 
   /* ================= FETCH CUSTOMERS ================= */
+  // const fetchCustomers = async () => {
+  //   setLoading(true);
+  //   try {
+  //     const data = await getCustomers();
+  //     setCustomers(Array.isArray(data) ? data : []);
+  //   } catch (error) {
+  //     console.error("Failed to fetch customers", error);
+  //     setCustomers([]);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
   const fetchCustomers = async () => {
-    setLoading(true);
-    try {
-      const data = await getCustomers();
-      setCustomers(Array.isArray(data) ? data : []);
-    } catch (error) {
-      console.error("Failed to fetch customers", error);
-      setCustomers([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+  setLoading(true);
+  try {
+    const data = await getCustomers();
+    const normalized = Array.isArray(data)
+      ? data.map(c => ({
+          ...c,
+          id: c.id || c._id,
+        }))
+      : [];
+
+    setCustomers(normalized);
+  } catch (error) {
+    console.error("Failed to fetch customers", error);
+    setCustomers([]);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   useEffect(() => {
     fetchCustomers();
@@ -68,26 +88,40 @@ export const CustomerTable = ({ search, showActions = true }) => {
     setShowModal(false);
     setEditData(null);
   };
-  const handleRefresh = (newCustomer) => {
-  if (newCustomer) {
-    // ⚡ INSTANT UI UPDATE
-    setCustomers(prev => [newCustomer, ...prev]);
-  } else {
-    fetchCustomers();
-  }
+ const handleRefresh = (customer) => {
+  setCustomers((prev) => {
+    const exists = prev.find(c => (c.id || c._id) === customer.id);
+
+    if (exists) {
+      // ✅ EDIT CASE
+      return prev.map(c =>
+        (c.id || c._id) === customer.id ? customer : c
+      );
+    }
+
+    // ✅ ADD CASE
+    return [customer, ...prev];
+  });
 };
 
-  {loading && (
+  //   {loading && (
+  //   <div className="text-center my-2">
+  //     <span className="spinner-border spinner-border-sm me-2" />
+  //     Refreshing customers...
+  //   </div>
+  // )}
+
+
+  return (
+    <>
+      <div className="common-table-wrapper mt-4">
+        {loading && (
   <div className="text-center my-2">
     <span className="spinner-border spinner-border-sm me-2" />
     Refreshing customers...
   </div>
 )}
 
-
-  return (
-    <>
-      <div className="common-table-wrapper mt-4">
         <table className="common-table table-striped">
           <thead>
             <tr>
@@ -116,8 +150,10 @@ export const CustomerTable = ({ search, showActions = true }) => {
               </tr>
             ) : (
               filteredCustomers.map((c) => (
-                <tr key={c.id}>
-                  <td>{c.id}</td>
+               <tr key={c.id || c._id}>
+
+             <td>{c.id || c._id}</td>
+
 
                   <td>
                     {c.first_name} {c.last_name}
@@ -157,7 +193,7 @@ export const CustomerTable = ({ search, showActions = true }) => {
 
                       <button
                         className="btn btn-sm btn-danger"
-                        onClick={() => handleDelete(c.id)}
+                        onClick={() => handleDelete(c.id || c._id)}
                       >
                         <i className="bi bi-trash" />
                       </button>

@@ -15,17 +15,26 @@ export const Invoice = () => {
    
 
 
+useEffect(() => {
+  const loadBilling = async () => {
+    try {
+      const res = await getCustomerBillingById(id);
+      setBilling(res.billing);
+      setProducts(res.products);
+    } catch (err) {
+      console.error("Billing API failed", err);
+    }
+  };
+  loadBilling();
+}, [id]);
+
+
   useEffect(() => {
-   getCustomerBillingById(id).then((res) => {
-  setBilling(res.billing);
-  setProducts(res.products);
-});
-  }, [id]);
-   useEffect(() => {
-  if (billing) {
-    setTimeout(() => window.print(), 500);
+  if (billing && company) {
+    window.print();
   }
-}, [billing]);
+}, [billing, company]);
+
   useEffect(() => {
   getCompanyDetails().then((res) => {
     setCompany(res);
@@ -288,13 +297,14 @@ export const Invoice = () => {
               <td colSpan="4">
             <div style={{ display: "flex", alignItems: "center" }}>
                     <div style={{ margin: "0px 30px" }}>
-                      {billing.qr_code_image && (
+                    {billing.qr_code_image && (
                         <img
-                          src={`http://localhost:5000${billing.qr_code_image}`}
+                          src={`https://zenfuture.in${billing.qr_code_image}`}
                           style={{ width: "80px" }}
                           alt="Bank QR"
                         />
                       )}
+
                     </div>
 
                     <div className="bank-details">
